@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --danger: #e53935;
+      --danger-dark: #ab000d;
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      transition: background 0.4s;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 0;
+      min-height: 100vh;
+    }
+    .theme-toggle-sideways {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--surface);
+      border-radius: 0 20px 20px 0;
+      box-shadow: 2px 4px 18px rgba(33,150,243,0.12);
+      transition: background 0.3s, color 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1.7rem;
+      color: var(--primary-dark);
+      outline: none;
+      border-right: 2px solid var(--primary);
+    }
+    .theme-toggle-sideways:focus { color: #ffda47; background: var(--accent);}
+    .decor-img {
+      position: absolute;
+      z-index: 0;
+      opacity: 0.15;
+      pointer-events: none;
+      animation: float 7s ease-in-out infinite alternate;
+    }
+    .decor-img.top-left { top: 1%; left: 2%; width: 110px; animation-delay: 0s;}
+    .decor-img.top-right { top: 3%; right: 3%; width: 84px; animation-delay: 2s;}
+    .decor-img.bottom-left { bottom: 2%; left: 3%; width: 92px; animation-delay: 1s;}
+    .decor-img.bottom-right { bottom: 1%; right: 2%; width: 105px; animation-delay: 3s;}
+    @keyframes float {
+      0% { transform: translateY(0px) scale(1);}
+      100% { transform: translateY(-18px) scale(1.07);}
+    }
+    .container {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 2.8rem 2rem 2.5rem 2rem;
+      max-width: 500px;
+      width: 98vw;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    .admin-hero-img {
+      width: 100px;
+      margin: -46px auto 22px auto;
+      border-radius: 50%;
+      box-shadow: 0 8px 32px #388e3c44;
+      object-fit: cover;
+      background: #e8f5e9;
+      border: 4px solid #a5d6a7;
+    }
+    .sticker-row {
+      display: flex;
+      justify-content: center;
+      gap: 13px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .sticker-row img {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: #c8e6c9;
+      padding: 2px;
+      box-shadow: 0 2px 8px #388e3c33;
+      transition: transform 0.17s;
+    }
+    .sticker-row img:hover {
+      transform: scale(1.13) rotate(-8deg);
+      box-shadow: 0 6px 24px #388e3c77;
+      background: #fffde4;
+    }
+    h2 {
+      font-size: 2.1rem;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.13);
+      font-family: 'Inter', Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--primary-dark);
+    }
+    .subtitle {
+      font-size: 1.09rem;
+      margin-bottom: 2rem;
+      font-weight: 500;
+      color: #5e6d5e;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.10);
+      max-width: 370px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button {
+      background: linear-gradient(90deg, #4caf50, #388e3c 90%);
+      border: none;
+      border-radius: 9px;
+      padding: 16px 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 6px 18px #388e3c33;
+      user-select: none;
+      width: 100%;
+      max-width: 330px;
+      margin: 0 auto;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+    }
+    button:hover,
+    button:focus {
+      background: linear-gradient(90deg, #388e3c, #1b5e20 90%);
+      transform: scale(1.05);
+      outline: none;
+      box-shadow: 0 8px 22px #1b5e2070;
+    }
+    button:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 8px #1b5e20b0;
+    }
+    .logout-btn {
+      margin-top: 2.3em;
+      background: linear-gradient(90deg, #e53935, #ab000d 90%);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 7px;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px #ffcdd2;
+      transition: background 0.17s;
+      max-width: 160px;
+      padding: 1em 0;
+    }
+    .logout-btn:hover, .logout-btn:focus {
+      background: linear-gradient(90deg, #ab000d, #e53935 90%);
+    }
+    .quick-stats {
+      background: #e3f1fd;
+      border-radius: 9px;
+      padding: 1.1em;
+      text-align: center;
+      color: #1769aa;
+      font-size: 1rem;
+      margin-bottom: 1.7em;
+      font-weight: 500;
+      box-shadow: 0 2px 8px #e3e8ee;
+      display: flex;
+      justify-content: space-around;
+      gap: 1.1em;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 370px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .quick-stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.32em;
+      font-size: 1.01em;
+    }
+    @media (max-width: 700px) {
+      .theme-toggle-sideways {
+        top: unset;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        border-right: none;
+        border-bottom: 2px solid var(--primary);
+      }
+      .container { padding: 2rem 0.7rem 1.5rem 0.7rem; }
+      h2 { font-size: 1.29rem; }
+      .admin-hero-img { width: 70px; margin: -36px auto 18px auto;}
+      .sticker-row img { width: 26px; height: 26px;}
+      .btn-group button { font-size: 1.08rem; padding: 11px 0;}
+      .quick-stats { font-size: 0.93rem;}
+    }
+    @media (max-width: 480px) {
+      .container { padding: 1rem 0.2rem 1rem 0.2rem; }
+      h2 { font-size: 1.1rem; }
+      .admin-hero-img { width: 42px; margin: -16px auto 8px auto;}
+      .sticker-row img { width: 18px; height: 18px;}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle-sideways" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+  <!-- Decorative floating SVGs -->
+  <img src="https://undraw.co/api/illustrations/analytics.svg?color=81c784" class="decor-img top-left" alt="" />
+  <img src="https://undraw.co/api/illustrations/tasks.svg?color=388e3c" class="decor-img top-right" alt="" />
+  <img src="https://undraw.co/api/illustrations/community.svg?color=4caf50" class="decor-img bottom-left" alt="" />
+  <img src="https://undraw.co/api/illustrations/goals.svg?color=a5d6a7" class="decor-img bottom-right" alt="" />
+
+  <div class="container" role="main" aria-label="Admin Dashboard">
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="admin-hero-img" alt="Admin Avatar" />
+    <div class="sticker-row">
+      <img src="https://cdn-icons-png.flaticon.com/512/3408/3408593.png" alt="Sticker1" title="Users" />
+      <img src="https://cdn-icons-png.flaticon.com/512/6810/6810085.png" alt="Sticker2" title="Sessions" />
+      <img src="https://cdn-icons-png.flaticon.com/512/2550/2550350.png" alt="Sticker3" title="Analytics" />
+      <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Sticker4" title="Tasks" />
+      <img src="https://cdn-icons-png.flaticon.com/512/4359/4359764.png" alt="Sticker5" title="Community" />
+    </div>
+    <h2>Welcome, Admin! <span aria-label="waving hand" role="img">👋</span></h2>
+    <div class="subtitle">You can manage users, counselors, sessions, reports, and view platform statistics here.</div>
+
+    <div class="quick-stats" id="quickStats">
+      <span title="Total Users">🧑‍🤝‍🧑 <span id="userCount">-</span> Users</span>
+      <span title="Total Counselors">👩‍⚕️ <span id="counselorCount">-</span> Counselors</span>
+      <span title="Total Sessions">📅 <span id="sessionCount">-</span> Sessions</span>
+      <span title="Reports">🚩 <span id="reportCount">-</span> Reports</span>
+    </div>
+
+    <div class="btn-group">
+      <button onclick="window.location.href='all-users.html'" aria-label="Manage Users">
+        <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" width="22" alt="" style="vertical-align: middle;" />
+        Manage Users
+      </button>
+      <button onclick="window.location.href='all-counselors.html'" aria-label="Manage Counselors">
+        <img src="https://cdn-icons-png.flaticon.com/512/4202/4202843.png" width="22" alt="" style="vertical-align: middle;" />
+        Manage Counselors
+      </button>
+      <button onclick="window.location.href='all-sessions.html'" aria-label="View All Sessions">
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" width="22" alt="" style="vertical-align: middle;" />
+        View All Sessions
+      </button>
+      <button onclick="window.location.href='analytics.html'" aria-label="View Platform Analytics">
+        <img src="https://cdn-icons-png.flaticon.com/512/3771/3771408.png" width="22" alt="" style="vertical-align: middle;" />
+        View Platform Analytics
+      </button>
+      <button onclick="window.location.href='reports.html'" aria-label="Review Reports">
+        <img src="https://cdn-icons-png.flaticon.com/512/1159/1159633.png" width="22" alt="" style="vertical-align: middle;" />
+        Review Reports
+      </button>
+      <button onclick="window.location.href='broadcast.html'" aria-label="Send Announcement">
+        <img src="https://cdn-icons-png.flaticon.com/512/929/929564.png" width="22" alt="" style="vertical-align: middle;" />
+        Send Announcement
+      </button>
+      <button onclick="window.location.href='settings.html'" aria-label="Platform Settings">
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" width="22" alt="" style="vertical-align: middle;" />
+        Platform Settings
+      </button>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+
+  <script>
+    // Floating SVGs animate on mouse movement for a lively feel
+    window.addEventListener('mousemove', (e) => {
+      document.querySelectorAll('.decor-img').forEach((img, i) => {
+        const speed = (i % 2 ? 1 : -1) * (7 + i * 2);
+        img.style.transform = `translateY(${(e.clientY / window.innerHeight - 0.5) * speed}px) translateX(${(e.clientX / window.innerWidth - 0.5) * speed}px)`;
+      });
+    });
+    // Theme toggle logic
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // Fetch real quick stats from backend API
+    fetch('http://127.0.0.1:8000/admin-dashboard-stats/')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('userCount').textContent = data.users ?? "-";
+        document.getElementById('counselorCount').textContent = data.counselors ?? "-";
+        document.getElementById('sessionCount').textContent = data.sessions ?? "-";
+        document.getElementById('reportCount').textContent = data.reports ?? "-";
+      })
+      .catch(() => {
+        document.getElementById('userCount').textContent = "-";
+        document.getElementById('counselorCount').textContent = "-";
+        document.getElementById('sessionCount').textContent = "-";
+        document.getElementById('reportCount').textContent = "-";
+      });
+
+    // Logout button: redirect to login page
+    document.getElementById('logoutBtn').onclick = function() {
+      location.href = 'login.html';
+    };
+  </script>
+</body>
+</html>

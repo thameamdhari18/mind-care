@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Users List & Login</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th, td { padding: 8px; }
+    #loginForm, #usersSection {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #aaa;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required /><br /><br />
+    <input type="password" id="password" placeholder="Password" required /><br /><br />
+    <button type="submit">Login</button>
+  </form>
+  <div id="loginResult" style="margin-top:10px; color: green;"></div>
+
+  <div id="usersSection">
+    <h2>Users</h2>
+    <button id="loadUsersBtn">Load Users</button>
+    <table id="usersTable" style="width:100%; margin-top: 20px;">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Login handler
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("http://localhost:8000/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          document.getElementById("loginResult").innerText = `Error: ${errorData.detail}`;
+          return;
+        }
+
+        const data = await response.json();
+        document.getElementById("loginResult").innerText = `✅ Welcome, ${data.user.name}!`;
+      } catch (err) {
+        document.getElementById("loginResult").innerText = `❌ Failed to login: ${err.message}`;
+      }
+    });
+
+    // Load users handler
+    const loadUsersBtn = document.getElementById("loadUsersBtn");
+    const usersTableBody = document.querySelector("#usersTable tbody");
+
+    loadUsersBtn.addEventListener("click", () => {
+      fetch("http://localhost:8000/users/")
+        .then(response => response.json())
+        .then(users => {
+          usersTableBody.innerHTML = ""; // clear existing rows
+          users.forEach(user => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${user.id}</td>
+              <td>${user.name}</td>
+              <td>${user.email}</td>
+              <td>${user.role}</td>
+            `;
+            usersTableBody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          alert("Failed to load users: " + error);
+        });
+    });
+  </script>
+
+</body>
+</html>

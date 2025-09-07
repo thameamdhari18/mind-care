@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Sessions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --table-row-bg: #f8fbff;
+      --table-row-hover: #e6f2ff;
+      --table-text: #222;
+      --table-border: #e3e8ee;
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+      --table-row-bg: #23253a;
+      --table-row-hover: #282b45;
+      --table-text: #e8eaf6;
+      --table-border: #2b3a67;
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      transition: background 0.4s;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      min-height: 100vh;
+    }
+    .theme-toggle-sideways {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--surface);
+      border-radius: 0 20px 20px 0;
+      box-shadow: 2px 4px 18px rgba(33,150,243,0.12);
+      transition: background 0.3s, color 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1.7rem;
+      color: var(--primary-dark);
+      outline: none;
+      border-right: 2px solid var(--primary);
+    }
+    .theme-toggle-sideways:focus { color: #ffda47; background: var(--accent);}
+    .container {
+      background: var(--surface);
+      max-width: 1000px;
+      width: 98vw;
+      margin: 0 auto;
+      padding: 2.3rem 1.7rem 2.2rem 1.7rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      position: relative;
+      z-index: 2;
+      animation: fadein 0.7s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--primary-dark);
+      user-select: none;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .chart-container {
+      width: 100%;
+      max-width: 420px;
+      height: 320px;
+      margin: 0 auto 2rem auto;
+      background: none;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--table-border);
+      box-shadow: 0 1.5px 7px #f5faff;
+      background: var(--surface);
+      min-width: 320px;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+      user-select: none;
+      background: transparent;
+      font-size: 1.01rem;
+      transition: transform 0.2s ease;
+    }
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--table-border);
+      text-align: center;
+      transition: background-color 0.2s ease;
+      color: var(--table-text);
+      background: var(--surface);
+    }
+    th {
+      background-color: var(--primary-dark);
+      color: white;
+      position: relative;
+      user-select: none;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      font-size: 1.04rem;
+    }
+    tbody tr:hover {
+      background-color: var(--table-row-hover);
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    tbody tr:nth-child(even) {
+      background-color: var(--table-row-bg);
+    }
+    .btn-container {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .btn {
+      padding: 0.7rem 1.4rem;
+      background: linear-gradient(90deg, #e040fb, #2196F3 90%);
+      color: white;
+      border: none;
+      border-radius: 11px;
+      font-size: 1.09rem;
+      font-family: 'Inter', Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px #90e0ef44;
+      transition: background 0.26s, transform 0.11s;
+      margin: 0 auto;
+      display: inline-block;
+    }
+    .btn:hover {
+      background: linear-gradient(90deg, #b026a9, #1769aa 90%);
+      transform: scale(1.04);
+      box-shadow: 0 10px 25px #48cae4bb;
+    }
+    .btn:active { transform: scale(0.97); }
+    @media (max-width: 900px) {
+      .container { padding: 1.1rem 0.6rem 1.1rem 0.6rem;}
+      h2 { font-size: 1.3rem; }
+      .table-wrapper { min-width: 0; }
+      table { font-size: 0.98rem; min-width: 360px;}
+      th, td { padding: 10px 6px; }
+      .chart-container { max-width: 98vw; }
+    }
+    @media (max-width: 700px) {
+      .theme-toggle-sideways {
+        top: unset;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        border-right: none;
+        border-bottom: 2px solid var(--primary);
+      }
+    }
+    @media (max-width: 500px) {
+      h2 { font-size: 1.12rem;}
+      th, td { font-size: 0.93rem; }
+      .container { padding: 0.4rem 0.1rem 0.7rem 0.1rem;}
+      .chart-container { height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle-sideways" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+  <div class="container">
+    <h2>📅 All Counseling Sessions</h2>
+    <div class="chart-container">
+      <canvas id="statusChart"></canvas>
+    </div>
+    <div class="table-wrapper">
+      <table id="sessionTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Counselor ID</th>
+            <th>Scheduled At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="btn-container">
+      <button class="btn" onclick="exportToPDF()">Export to PDF</button>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    // --- THEME TOGGLE LOGIC ---
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    let chartInstance = null;
+
+    fetch("http://localhost:8000/sessions/")
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.querySelector("#sessionTable tbody");
+        const statusCount = {};
+
+        data.forEach(session => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${session.id}</td>
+            <td>${session.user_id}</td>
+            <td>${session.counselor_id}</td>
+            <td>${new Date(session.scheduled_at).toLocaleString()}</td>
+            <td>${session.status}</td>
+          `;
+          tbody.appendChild(row);
+
+          // Count session statuses
+          statusCount[session.status] = (statusCount[session.status] || 0) + 1;
+        });
+
+        // Create Chart
+        const ctx = document.getElementById("statusChart").getContext("2d");
+        chartInstance = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: Object.keys(statusCount),
+            datasets: [{
+              label: "Session Status",
+              data: Object.values(statusCount),
+              backgroundColor: ["#66bb6a", "#ffa726", "#ef5350", "#42a5f5"]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Session Status Distribution"
+              },
+              legend: {
+                position: 'bottom'
+              },
+              tooltip: {
+                enabled: true
+              }
+            }
+          }
+        });
+      });
+
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      let yOffset = 20;
+
+      pdf.setFontSize(18);
+      pdf.text("All Counseling Sessions Report", 40, yOffset);
+      yOffset += 30;
+
+      // Export Chart
+      if (chartInstance) {
+        const chartCanvas = chartInstance.canvas;
+        const chartImg = chartCanvas.toDataURL("image/png", 1.0);
+        const imgProps = pdf.getImageProperties(chartImg);
+        const width = pdf.internal.pageSize.getWidth() - 80;
+        const height = (imgProps.height * width) / imgProps.width;
+        pdf.addImage(chartImg, "PNG", 40, yOffset, width, height);
+        yOffset += height + 30;
+      }
+
+      // Export Table
+      const table = document.getElementById("sessionTable");
+      const rows = table.querySelectorAll("tr");
+      let tableData = [];
+
+      rows.forEach(row => {
+        let rowData = [];
+        row.querySelectorAll("th, td").forEach(cell => {
+          rowData.push(cell.innerText);
+        });
+        tableData.push(rowData);
+      });
+
+      const colCount = tableData[0].length;
+      const colWidth = (pdf.internal.pageSize.getWidth() - 80) / colCount;
+
+      tableData.forEach((row, i) => {
+        row.forEach((cell, j) => {
+          pdf.setFontSize(10);
+          pdf.text(cell, 40 + j * colWidth, yOffset);
+        });
+        yOffset += 15;
+        if (yOffset > 750) {
+          pdf.addPage();
+          yOffset = 40;
+        }
+      });
+
+      pdf.save("sessions_report.pdf");
+    }
+  </script>
+</body>
+</html>

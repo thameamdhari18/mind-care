@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reports - MindCare Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe0b2 0%, #fff3e6 100%);
+      color: #1a237e;
+      margin: 0; padding: 0; min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 2.5rem 2rem;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 32px #ffecb366, 0 2px 8px #ffe0b244;
+    }
+    h1 {
+      color: #e53935;
+      font-size: 2rem;
+      margin-bottom: 1.3em;
+      font-weight: 700;
+      text-align: center;
+    }
+    .back-btn {
+      display: inline-block;
+      margin: 2em 0 0 0;
+      padding: 0.7em 2.1em;
+      background: #ffe0b2;
+      color: #e53935;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      box-shadow: 0 1.5px 8px #ffe0b244;
+      text-decoration: none;
+      transition: background 0.17s, color 0.17s;
+    }
+    .back-btn:hover { background: #ffcc80; color: #ba1b1b;}
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1em;
+      border-radius: 14px;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-bottom: 1em;
+      box-shadow: 0 2px 8px #ffe0b244;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      min-width: 700px;
+    }
+    th, td {
+      border: 1px solid #ffe0b2;
+      padding: 0.8em;
+      text-align: left;
+      font-size: 1.01rem;
+      min-width: 100px;
+    }
+    th { background: #ffe0b2; color: #e53935;}
+    tr:nth-child(even) { background: #fff8e1;}
+    tr:hover {
+      background: #ffe0b2 !important;
+      box-shadow: 0 2px 12px #ffd54f66;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .action-btn {
+      background: #2196f3; color: #fff; border: none; border-radius: 4px; padding: 0.4em 1em; cursor: pointer;
+      font-weight: 600; transition: background 0.18s;
+      margin-right: 0.18em;
+      font-size: 0.97em;
+      outline: none;
+    }
+    .action-btn:active { box-shadow: 0 2px 8px #ffe0b244; }
+    .action-btn:hover { background: #1769aa;}
+    .action-btn.resolve { background: #4caf50; }
+    .action-btn.resolve:hover { background: #087f23; }
+    .action-btn.delete { background: #e53935; }
+    .action-btn.delete:hover { background: #b71c1c; }
+    .action-btn.ignore { background: #bdbdbd; color: #444;}
+    .action-btn.ignore:hover { background: #757575; color: #fff;}
+    .status-dot {
+      display: inline-block;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      margin-right: 7px;
+      vertical-align: middle;
+    }
+    .pending { background: #ff9800;}
+    .resolved { background: #4caf50;}
+    .ignored { background: #bdbdbd;}
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(34, 49, 63, 0.13);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2em 2.5em;
+      box-shadow: 0 8px 32px #ffe0b288;
+      max-width: 400px;
+      width: 92vw;
+      text-align: center;
+      color: #1a237e;
+      font-size: 1.1em;
+      position: relative;
+      animation: fadein 0.39s;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 16px;
+      cursor: pointer;
+      font-size: 1.3em;
+      color: #e53935;
+      background: none;
+      border: none;
+    }
+    .modal-actions {
+      margin-top: 2em;
+      display: flex;
+      gap: 1em;
+      justify-content: center;
+    }
+    .modal .action-btn {
+      min-width: 90px;
+      padding: 0.6em 1.5em;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 2.3em;
+      background: #2196f3;
+      color: #fff;
+      padding: 1em 2.1em;
+      border-radius: 18px;
+      font-weight: 600;
+      font-size: 1.09em;
+      box-shadow: 0 2px 8px #1976d2bb;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s, bottom 0.35s;
+      z-index: 1200;
+    }
+    .toast.show {
+      opacity: 1;
+      bottom: 3.8em;
+      pointer-events: auto;
+    }
+    .toast.error { background: #e53935; box-shadow: 0 2px 8px #b71c1c55; }
+    @media (max-width: 900px) {
+      .container { padding: 1.1rem 0.2rem; }
+      .table-responsive { min-width: 0; }
+      table { min-width: 480px;}
+      th, td { min-width: 80px; }
+    }
+    @media (max-width: 700px) {
+      .container { padding: 1.2rem 0.2rem;}
+      table { min-width: 330px; }
+      th, td { min-width: 70px; }
+      h1 { font-size: 1.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Flagged Reports</h1>
+    <div class="table-responsive">
+      <table id="reportsTable">
+        <thead>
+          <tr>
+            <th>Report ID</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reportsTableBody">
+          <tr><td colspan="7" style="text-align:center;color:#bbb;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="noResults" style="display:none;text-align:center;color:#888;font-size:1.1em; margin-top:2em;">No reports found.</div>
+    <a class="back-btn" href="dashboard_admin.html">Back to Dashboard</a>
+  </div>
+
+  <!-- Modal for viewing report -->
+  <div class="modal" id="viewModal">
+    <div class="modal-content" id="viewModalContent">
+      <button class="modal-close" onclick="closeModal('viewModal')" aria-label="Close">&times;</button>
+      <div id="viewDetails"></div>
+    </div>
+  </div>
+  <!-- Modal for confirmation (resolve/delete/ignore) -->
+  <div class="modal" id="actionModal">
+    <div class="modal-content" id="actionModalContent">
+      <button class="modal-close" onclick="closeModal('actionModal')" aria-label="Close">&times;</button>
+      <div id="actionDetails"></div>
+      <div class="modal-actions" id="actionModalActions"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    function escapeHtml(text) {
+      return String(text || '').replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[m];
+      });
+    }
+    function showToast(msg, error=false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      if(error) toast.classList.add("error");
+      else toast.classList.remove("error");
+      toast.classList.add("show");
+      setTimeout(() => { toast.classList.remove("show"); }, 2500);
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("show");
+    }
+    // Fetch reports from backend
+    let allReports = {};
+    function fetchAndRenderReports() {
+      fetch('http://127.0.0.1:8000/reports/')
+      .then(r=>r.json())
+      .then(reports => {
+        allReports = {};
+        const tbody = document.getElementById('reportsTableBody');
+        tbody.innerHTML = '';
+        if (!Array.isArray(reports) || reports.length === 0) {
+          document.getElementById('reportsTable').style.display = "none";
+          document.getElementById('noResults').style.display = "block";
+          return;
+        }
+        document.getElementById('noResults').style.display = "none";
+        document.getElementById('reportsTable').style.display = "table";
+        reports.forEach(r => { allReports[r.id] = r; });
+        for (const r of reports) {
+          const dotClass = r.status === "pending" ? "pending"
+                        : r.status === "resolved" ? "resolved"
+                        : "ignored";
+          const statusCased = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+          let actionBtns = `
+            <button class="action-btn" onclick="viewReport(${r.id})">View</button>
+          `;
+          if (r.status === "pending") {
+            actionBtns += `
+              <button class="action-btn resolve" onclick="confirmReportAction(${r.id},'resolve')">Resolve</button>
+              <button class="action-btn ignore" onclick="confirmReportAction(${r.id},'ignore')">Ignore</button>
+              <button class="action-btn delete" onclick="confirmReportAction(${r.id},'delete')">Delete</button>
+            `;
+          }
+          tbody.innerHTML += `
+            <tr>
+              <td>#${r.id}</td>
+              <td>${escapeHtml(r.user_name)}</td>
+              <td>${escapeHtml(r.type)}</td>
+              <td>${escapeHtml(r.description)}</td>
+              <td>${escapeHtml(r.date)}</td>
+              <td><span class="status-dot ${dotClass}"></span>${statusCased}</td>
+              <td>${actionBtns}</td>
+            </tr>
+          `;
+        }
+      })
+      .catch(()=>{
+        document.getElementById('reportsTableBody').innerHTML =
+          `<tr><td colspan="7" style="text-align:center;color:#e53935;">Error loading reports.</td></tr>`;
+      });
+    }
+    fetchAndRenderReports();
+
+    function viewReport(id) {
+      const r = allReports[id];
+      let html = `<h2 style="color:#e53935;margin-bottom:0.4em;">Report #${r.id}</h2>
+        <p><strong>User:</strong> ${escapeHtml(r.user_name)}</p>
+        <p><strong>Type:</strong> ${escapeHtml(r.type)}</p>
+        <p><strong>Description:</strong><br>${escapeHtml(r.description)}</p>
+        <p><strong>Date:</strong> ${escapeHtml(r.date)}</p>
+        <p><strong>Status:</strong> ${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</p>
+      `;
+      document.getElementById('viewDetails').innerHTML = html;
+      document.getElementById('viewModal').classList.add("show");
+    }
+    function confirmReportAction(id, action) {
+      const r = allReports[id];
+      let actionText = (action === "resolve" ? "Resolve"
+                        : action === "ignore" ? "Ignore"
+                        : "Delete");
+      document.getElementById('actionDetails').innerHTML = `
+        <h3 style="margin-top:0;font-size:1.2em;">${actionText} Report</h3>
+        <p>Are you sure you want to <strong>${actionText.toLowerCase()}</strong> report #${r.id} (${escapeHtml(r.type)})?</p>
+      `;
+      document.getElementById('actionModalActions').innerHTML = `
+        <button class="action-btn ${action}" onclick="performReportAction(${id},'${action}')">${actionText}</button>
+        <button class="action-btn" onclick="closeModal('actionModal')">Cancel</button>
+      `;
+      document.getElementById('actionModal').classList.add("show");
+    }
+    function performReportAction(id, action) {
+      let method = (action === "delete") ? "DELETE" : "PATCH";
+      let url = `http://127.0.0.1:8000/reports/${id}/` + (action !== "delete" ? "status" : "");
+      let body = (action === "delete") ? null : JSON.stringify({ status: action === "resolve" ? "resolved" : "ignored" });
+      fetch(url, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body
+      })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(() => {
+        showToast(`Report ${action === "delete" ? "deleted" : "updated"}!`);
+        fetchAndRenderReports();
+        closeModal('actionModal');
+      })
+      .catch(() => {
+        closeModal('actionModal');
+        showToast("Failed to update report.", true);
+      });
+    }
+    // Modal: close on escape or click outside
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === "Escape") {
+        closeModal('viewModal');
+        closeModal('actionModal');
+      }
+    });
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('mousedown', function(e){
+        if(e.target === this) closeModal(this.id);
+      });
+    });
+  </script>
+</body>
+</html>

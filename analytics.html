@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 Platform Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --stat-bg: #f1fdfd;
+      --stat-border: #009688;
+      --stat-text: #004d40;
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+      --stat-bg: #212c2e;
+      --stat-border: #00b7c2;
+      --stat-text: #e0f7fa;
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      transition: background 0.4s, color 0.4s;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+    }
+    .theme-toggle-sideways {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--surface);
+      border-radius: 0 20px 20px 0;
+      box-shadow: 2px 4px 18px rgba(33,150,243,0.12);
+      transition: background 0.3s, color 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1.7rem;
+      color: var(--primary-dark);
+      outline: none;
+      border-right: 2px solid var(--primary);
+    }
+    .theme-toggle-sideways:focus { color: #ffda47; background: var(--accent);}
+    .container {
+      max-width: 740px;
+      width: 98vw;
+      margin: auto;
+      background: var(--surface);
+      padding: 2.3rem 1.5rem 2.2rem 1.5rem;
+      border-radius: 1.25rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: box-shadow 0.3s, background 0.4s;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-dark);
+      letter-spacing: 0.01em;
+      font-weight: 700;
+      user-select: none;
+    }
+    .stats-flex {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-between;
+      margin-bottom: 2.2rem;
+    }
+    .stat {
+      flex: 1 1 180px;
+      min-width: 160px;
+      max-width: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--stat-bg);
+      margin: 0.4rem 0;
+      padding: 1.3rem 1.1rem;
+      border-left: 6px solid var(--stat-border);
+      border-radius: 0.7rem;
+      font-size: 1.2rem;
+      color: var(--stat-text);
+      transition: transform 0.18s, box-shadow 0.14s, background 0.18s;
+      box-shadow: 0 2px 8px #b2f3f54d;
+      position: relative;
+      cursor: pointer;
+    }
+    .stat .label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 1.08rem;
+    }
+    .stat .count {
+      font-weight: bold;
+      font-size: 2.0rem;
+      margin-top: 0.3rem;
+      letter-spacing: 0.01em;
+      transition: color 0.3s;
+    }
+    .stat .trend {
+      margin-top: 0.27rem;
+      font-size: 1.01rem;
+      color: #43a047;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .stat .trend.down {
+      color: #e53935;
+    }
+    .stat .trend.stable {
+      color: #ffa000;
+    }
+    .stat:hover, .stat:focus {
+      transform: scale(1.055);
+      background: var(--bg-gradient);
+      box-shadow: 0 8px 18px #81c78455;
+      z-index: 2;
+    }
+    .loading {
+      font-style: italic;
+      color: #aaa;
+      font-size: 1.1rem;
+    }
+    .charts-flex {
+      display: flex;
+      gap: 1.1rem;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .chart-card {
+      background: var(--stat-bg);
+      border-radius: 1rem;
+      box-shadow: 0 2px 12px #b2f3f548;
+      padding: 1.2rem 1rem;
+      margin-bottom: 1.5rem;
+      width: 330px;
+      max-width: 99vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.2s, background 0.16s;
+    }
+    .chart-card h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.13rem;
+      color: var(--stat-text);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    canvas {
+      max-width: 100%;
+      margin: 0 auto;
+      background: transparent;
+    }
+    @media (max-width: 900px) {
+      .container { padding: 1.1rem 0.6rem 1.1rem 0.6rem;}
+      h2 { font-size: 1.3rem; }
+      .stat { font-size: 1.04rem; max-width: 99vw;}
+      .chart-card { width: 100%; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1.1rem 0.3rem 1.1rem 0.3rem;}
+      .stats-flex { flex-direction: column; gap: 0.7rem;}
+      .stat { font-size: 0.99rem; min-width: 0; padding: 1rem 0.6rem;}
+      .chart-card { padding: 0.9rem 0.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle-sideways" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+  <div class="container">
+    <h2>📈 Platform Analytics</h2>
+    <div class="stats-flex">
+      <div class="stat" tabindex="0">
+        <div class="label">👥 Total Users</div>
+        <div class="count" id="totalUsers"><span class="loading">Loading...</span></div>
+        <div class="trend" id="userTrend"></div>
+      </div>
+      <div class="stat" tabindex="0">
+        <div class="label">🧠 Total Sessions</div>
+        <div class="count" id="totalSessions"><span class="loading">Loading...</span></div>
+        <div class="trend" id="sessionTrend"></div>
+      </div>
+      <div class="stat" tabindex="0">
+        <div class="label">😊 Mood Logs</div>
+        <div class="count" id="totalMoods"><span class="loading">Loading...</span></div>
+        <div class="trend" id="moodTrend"></div>
+      </div>
+    </div>
+    <div class="charts-flex">
+      <div class="chart-card">
+        <h3>Sessions Over Last 7 Days</h3>
+        <canvas id="sessionsChart" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>User Growth Over Last 7 Days</h3>
+        <canvas id="usersChart" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Mood Entries Distribution</h3>
+        <canvas id="moodsChart" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // --- THEME TOGGLE LOGIC ---
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+      // Update chart color theme dynamically
+      if (window.sessionsChartInstance && window.usersChartInstance && window.moodsChartInstance) {
+        [window.sessionsChartInstance, window.usersChartInstance, window.moodsChartInstance].forEach(chart => {
+          chart.options.plugins.legend.labels.color = theme === "dark" ? "#e8eaf6" : "#222";
+          chart.options.plugins.title.color = theme === "dark" ? "#e8eaf6" : "#222";
+          chart.options.scales.x.ticks.color = theme === "dark" ? "#e8eaf6" : "#222";
+          chart.options.scales.y.ticks.color = theme === "dark" ? "#e8eaf6" : "#222";
+          chart.update();
+        });
+      }
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // Count-up Animation
+    function animateCount(id, endValue) {
+      const el = document.getElementById(id);
+      let start = 0;
+      const duration = 900;
+      const stepTime = Math.max(10, Math.floor(duration / Math.max(1,endValue)));
+      const timer = setInterval(() => {
+        el.textContent = ++start;
+        if (start === endValue) clearInterval(timer);
+      }, stepTime);
+    }
+
+    // Trend indicator
+    function setTrend(id, trend) {
+      const trendEl = document.getElementById(id);
+      if (!trendEl) return;
+      if (trend > 0) trendEl.innerHTML = `<span style="color:#43a047;">▲</span> +${trend} from last week`;
+      else if (trend < 0) trendEl.innerHTML = `<span style="color:#e53935;">▼</span> ${trend} from last week`;
+      else trendEl.innerHTML = `<span style="color:#ffa000;">●</span> Stable`;
+      trendEl.className = "trend" + (trend > 0 ? "" : (trend < 0 ? " down" : " stable"));
+    }
+
+    // Date helpers
+    function getLastNDates(n) {
+      const arr = [];
+      const now = new Date();
+      for (let i = n - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        arr.push(d.toISOString().slice(0, 10));
+      }
+      return arr;
+    }
+    function countByDay(items, field, days) {
+      const map = {};
+      items.forEach(item => {
+        const date = (new Date(item[field])).toISOString().slice(0, 10);
+        map[date] = (map[date] || 0) + 1;
+      });
+      return days.map(d => map[d] || 0);
+    }
+
+    async function loadStats() {
+      try {
+        // Simulate previous week for trend (fetch twice for demo, use in prod with real endpoint!)
+        const [users, sessions, moods] = await Promise.all([
+          fetch("http://localhost:8000/users/").then(res => res.json()),
+          fetch("http://localhost:8000/sessions/").then(res => res.json()),
+          fetch("http://localhost:8000/moods/").then(res => res.json())
+        ]);
+        // For trends, fake last week by shifting all created_at -7d (this is for demo, use real prev week data in prod)
+        const last7 = getLastNDates(7);
+        const prev7 = getLastNDates(14).slice(0,7);
+
+        // Users
+        const usersThisWeek = users.filter(u => u.created_at && last7.includes(u.created_at.slice(0,10)));
+        const usersPrevWeek = users.filter(u => u.created_at && prev7.includes(u.created_at.slice(0,10)));
+        animateCount("totalUsers", users.length);
+        setTrend("userTrend", usersThisWeek.length - usersPrevWeek.length);
+
+        // Sessions
+        const sessionsThisWeek = sessions.filter(s => s.scheduled_at && last7.includes(new Date(s.scheduled_at).toISOString().slice(0,10)));
+        const sessionsPrevWeek = sessions.filter(s => s.scheduled_at && prev7.includes(new Date(s.scheduled_at).toISOString().slice(0,10)));
+        animateCount("totalSessions", sessions.length);
+        setTrend("sessionTrend", sessionsThisWeek.length - sessionsPrevWeek.length);
+
+        // Moods
+        const moodsThisWeek = moods.filter(m => m.created_at && last7.includes(m.created_at.slice(0,10)));
+        const moodsPrevWeek = moods.filter(m => m.created_at && prev7.includes(m.created_at.slice(0,10)));
+        animateCount("totalMoods", moods.length);
+        setTrend("moodTrend", moodsThisWeek.length - moodsPrevWeek.length);
+
+        // CHARTS
+        // Sessions Over Last 7 Days
+        const sessionCounts = countByDay(sessions, "scheduled_at", last7);
+        window.sessionsChartInstance = new Chart(document.getElementById("sessionsChart"), {
+          type: "bar",
+          data: {
+            labels: last7,
+            datasets: [{
+              label: "Sessions",
+              data: sessionCounts,
+              backgroundColor: "#2196f3bb"
+            }]
+          },
+          options: {
+            plugins: {
+              title: { display: false },
+              legend: { display: false, labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } }
+            },
+            scales: {
+              x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } },
+              y: { beginAtZero: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } }
+            }
+          }
+        });
+        // Users Over Last 7 Days
+        const userCounts = countByDay(users, "created_at", last7);
+        window.usersChartInstance = new Chart(document.getElementById("usersChart"), {
+          type: "line",
+          data: {
+            labels: last7,
+            datasets: [{
+              label: "New Users",
+              data: userCounts,
+              borderColor: "#43a047",
+              backgroundColor: "#43a04744",
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            plugins: {
+              title: { display: false },
+              legend: { display: false, labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } }
+            },
+            scales: {
+              x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } },
+              y: { beginAtZero: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') } }
+            }
+          }
+        });
+        // Mood Logs Distribution Pie
+        const moodTypes = {};
+        moods.forEach(m => {
+          moodTypes[m.mood] = (moodTypes[m.mood] || 0) + 1;
+        });
+        window.moodsChartInstance = new Chart(document.getElementById("moodsChart"), {
+          type: "pie",
+          data: {
+            labels: Object.keys(moodTypes),
+            datasets: [{
+              label: "Mood Entries",
+              data: Object.values(moodTypes),
+              backgroundColor: [
+                "#ffc107bb", "#8bc34abb", "#42a5f5bb", "#e040fbbb", "#e57373bb", "#43a047bb"
+              ]
+            }]
+          },
+          options: {
+            plugins: {
+              title: { display: false },
+              legend: {
+                position: "bottom",
+                labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text') }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error loading analytics:", error);
+        document.getElementById("totalUsers").textContent = "Error";
+        document.getElementById("totalSessions").textContent = "Error";
+        document.getElementById("totalMoods").textContent = "Error";
+      }
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calendar & Reminders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --bg-gradient: linear-gradient(135deg, #fff3e6 70%, #ffe0b2 100%);
+      --surface: #fff;
+      --text: #222;
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 460px;
+      margin: 3rem auto;
+      background: var(--surface);
+      padding: 2.2rem 1.4rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 36px rgba(33, 150, 243, 0.09), 0 4px 16px rgba(0,0,0,0.07);
+      text-align: center;
+      position: relative;
+      animation: fadein 0.8s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: translateY(22px) scale(.98);}
+      100% { opacity: 1; transform: translateY(0) scale(1);}
+    }
+    .theme-toggle {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.23rem;
+      cursor: pointer;
+      color: var(--primary-dark);
+      outline: none;
+      transition: color 0.2s;
+    }
+    .theme-toggle:focus { color: #ffda47; }
+    h2 {
+      color: var(--primary-dark);
+      margin-bottom: 0.5em;
+    }
+    .icon {
+      font-size: 3.2em;
+      margin-bottom: 0.7em;
+    }
+    .calendar {
+      margin: 1.5em 0 1.5em 0;
+      border-radius: 12px;
+      background: #f8fbff;
+      box-shadow: 0 1.5px 7px #e3e8ee44;
+      padding: 1.2em 0.7em 1.5em 0.7em;
+      text-align: left;
+    }
+    [data-theme="dark"] .calendar {
+      background: #232946;
+      color: #e8eaf6;
+    }
+    .calendar label {
+      font-weight: 600;
+      margin-right: 0.8em;
+      color: var(--primary-dark);
+    }
+    [data-theme="dark"] .calendar label {
+      color: #74ebd5;
+    }
+    .reminder-list {
+      margin-top: 1.1em;
+      padding: 0;
+      list-style: none;
+      min-height: 1.5em;
+    }
+    .reminder-item {
+      background: #e3f1fd;
+      padding: 0.65em 1em;
+      margin-bottom: 0.7em;
+      border-radius: 7px;
+      box-shadow: 0 1px 6px #e3e8ee33;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1em;
+      color: #1769aa;
+      animation: fadein 0.5s;
+    }
+    [data-theme="dark"] .reminder-item {
+      background: #253250;
+      color: #74ebd5;
+    }
+    .reminder-item .del-btn {
+      background: #e53935;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      padding: 0.35em .8em;
+      font-size: 0.97em;
+      cursor: pointer;
+      transition: background 0.17s;
+      margin-left: 1em;
+    }
+    .reminder-item .del-btn:hover { background: #ab000d;}
+    .calendar input[type="date"], .calendar input[type="time"], .calendar input[type="text"] {
+      border-radius: 5px;
+      border: 1.5px solid #b3c9e5;
+      padding: 0.4em 0.7em;
+      font-size: 1em;
+      margin-right: 0.7em;
+      margin-bottom: 0.5em;
+      font-family: inherit;
+      background: #f8fbff;
+      color: var(--text);
+      transition: border-color .2s;
+    }
+    .calendar input[type="date"]:focus,
+    .calendar input[type="time"]:focus,
+    .calendar input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    @media (max-width: 500px) {
+      .container { padding: 1.1rem 0.2rem; }
+      .calendar { padding: 0.8em 0.1em; }
+      .reminder-item { font-size: 0.97em;}
+    }
+    button {
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.8em 1.8em;
+      font-size: 1em;
+      font-weight: 600;
+      box-shadow: 0 2px 8px #e3e8ee;
+      cursor: pointer;
+      transition: background 0.19s;
+      margin-top: 1.2em;
+    }
+    button:hover { background: #1769aa;}
+    .back-btn {
+      margin-top: 1.4em;
+      padding: 0.8em 2em;
+      background: #b3c9e5;
+      color: #1769aa;
+      font-weight: 600;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      box-shadow: 0 2px 8px #e3e8ee;
+      transition: background 0.17s, color 0.17s;
+    }
+    .back-btn:hover { background: #dce8f6; color: #2196f3;}
+    .msg {
+      color: #1769aa;
+      font-size: 0.99em;
+      margin-top: 0.7em;
+      min-height: 1.2em;
+      text-align: center;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+    <div class="icon">📆</div>
+    <h2>Calendar & Reminders</h2>
+    <form class="calendar" id="reminderForm" autocomplete="off">
+      <label for="date">Date</label>
+      <input type="date" id="date" required>
+      <label for="time">Time</label>
+      <input type="time" id="time" required>
+      <input type="text" id="reminderText" placeholder="Reminder (e.g. Session with John)" maxlength="80" required>
+      <button type="submit" style="padding: 0.6em 1.3em; font-size: 0.97em;">Add Reminder</button>
+      <ul class="reminder-list" id="reminderList"></ul>
+    </form>
+    <div class="msg" id="msg"></div>
+    <button class="back-btn" onclick="location.href='dashboard_counselor.html'">Back</button>
+  </div>
+  <script>
+    // THEME TOGGLE
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // BACKEND CONNECTION
+    const API_URL = "http://localhost:8000"; // Change to your backend
+    const userId = 1; // Replace with the actual logged-in user id or fetch from session
+
+    const reminderForm = document.getElementById('reminderForm');
+    const reminderList = document.getElementById('reminderList');
+    const msg = document.getElementById('msg');
+
+    // Load reminders from backend
+    async function loadReminders() {
+      msg.textContent = "Loading reminders...";
+      try {
+        const resp = await fetch(`${API_URL}/reminders/?user_id=${userId}`);
+        if (!resp.ok) throw new Error("Failed to fetch reminders");
+        const reminders = await resp.json();
+        renderReminders(reminders);
+        msg.textContent = "";
+      } catch (e) {
+        reminderList.innerHTML = '<li style="color:#bfa16c; padding-left:0;">No reminders yet.</li>';
+        msg.textContent = "Could not load reminders.";
+      }
+    }
+
+    function renderReminders(reminders) {
+      reminderList.innerHTML = '';
+      if (!reminders || reminders.length === 0) {
+        reminderList.innerHTML = '<li style="color:#bfa16c; padding-left:0;">No reminders yet.</li>';
+        return;
+      }
+      reminders.forEach(rem => {
+        const li = document.createElement('li');
+        li.className = 'reminder-item';
+        li.innerHTML = `
+          <span>
+            <b>${rem.date}</b>
+            <span style="font-size:1em; color:#888;">${rem.time}</span>
+            – ${rem.text}
+          </span>
+          <button class="del-btn" title="Delete Reminder" data-reminder-id="${rem.id}">&times;</button>
+        `;
+        reminderList.appendChild(li);
+      });
+      // Add delete listeners
+      document.querySelectorAll('.del-btn').forEach(btn => {
+        btn.onclick = async function() {
+          const id = this.getAttribute('data-reminder-id');
+          await deleteReminder(id);
+        }
+      });
+    }
+
+    // Add reminder to backend
+    reminderForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const text = document.getElementById('reminderText').value.trim();
+      if (!date || !time || !text) {
+        msg.textContent = "Please fill in all fields.";
+        return;
+      }
+      try {
+        const resp = await fetch(`${API_URL}/reminders/`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ user_id: userId, date, time, text })
+        });
+        if (!resp.ok) throw new Error("Failed to add reminder");
+        msg.textContent = "Reminder added!";
+        loadReminders();
+        this.reset();
+      } catch (e) {
+        msg.textContent = "Could not add reminder.";
+      }
+      setTimeout(()=>{msg.textContent="";}, 1400);
+    };
+
+    // Delete reminder from backend
+    async function deleteReminder(id) {
+      try {
+        const resp = await fetch(`${API_URL}/reminders/${id}/`, { method: "DELETE" });
+        if (!resp.ok) throw new Error("Failed to delete reminder");
+        msg.textContent = "Reminder deleted.";
+        loadReminders();
+      } catch (e) {
+        msg.textContent = "Could not delete reminder.";
+      }
+      setTimeout(()=>{msg.textContent="";}, 1200);
+    }
+
+    // Initial load
+    loadReminders();
+  </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Counselors - MindCare Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --danger: #e53935;
+      --danger-dark: #ab000d;
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --surface: #fff;
+      --text: #1a237e;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      min-height: 100vh;
+    }
+    .container {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 2.2rem 2rem 2rem 2rem;
+      max-width: 950px;
+      width: 98vw;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      margin-top: 2.5rem;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    h1 {
+      color: var(--primary-dark);
+      font-size: 2rem;
+      margin-bottom: 1.3em;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+    .search-bar {
+      width: 100%;
+      margin-bottom: 1.2em;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .search-bar input[type="text"] {
+      padding: 0.7em 1.1em;
+      border-radius: 9px;
+      border: 1.5px solid #b7cafc;
+      font-size: 1.07em;
+      outline: none;
+      width: 270px;
+      background: #f8fbff;
+      margin-left: auto;
+      transition: border 0.2s;
+    }
+    .search-bar input[type="text"]:focus {
+      border: 2px solid #2196f3;
+      background: #e3f1fd;
+    }
+    .back-btn {
+      display: inline-block;
+      margin: 2em 0 0 0;
+      padding: 0.7em 2.1em;
+      background: #e3f1fd;
+      color: #1769aa;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 1.5px 8px #e3e8ee;
+      text-decoration: none;
+      transition: background 0.17s, color 0.17s;
+      font-size: 1.07em;
+    }
+    .back-btn:hover { background: #dce8f6; color: #2196f3;}
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1em;
+      border-radius: 14px;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-bottom: 1em;
+      box-shadow: 0 2px 8px #e3e8ee;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+      min-width: 700px;
+    }
+    th, td {
+      border: 1px solid #e3e8ee;
+      padding: 0.9em 0.7em;
+      text-align: left;
+      font-size: 1.01rem;
+      min-width: 120px;
+      word-break: break-word;
+    }
+    th { background: #e3f1fd; color: #1769aa;}
+    tr:nth-child(even) { background: #f8fbff;}
+    tr:hover {
+      background: #e3f1fd !important;
+      box-shadow: 0 2px 12px #c5dafe66;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .action-btn {
+      background: #2196f3; color: #fff; border: none; border-radius: 4px; padding: 0.4em 1.1em; cursor: pointer;
+      font-weight: 600; transition: background 0.18s, box-shadow 0.18s;
+      margin-right: 0.3em;
+      font-size: 0.97em;
+      outline: none;
+    }
+    .action-btn:active { box-shadow: 0 2px 8px #e3e8ee; }
+    .action-btn:hover { background: #1769aa; }
+    .action-btn.deactivate { background: #e53935; }
+    .action-btn.deactivate:hover { background: #b71c1c; }
+    .action-btn.activate { background: #4caf50; }
+    .action-btn.activate:hover { background: #087f23; }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(34, 49, 63, 0.26);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.28s;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2em 2.5em;
+      box-shadow: 0 8px 32px #bbdefb88;
+      max-width: 370px;
+      width: 92vw;
+      text-align: center;
+      color: #1a237e;
+      font-size: 1.1em;
+      position: relative;
+      animation: fadein 0.39s;
+      transition: transform 0.25s;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 16px;
+      cursor: pointer;
+      font-size: 1.3em;
+      color: #1769aa;
+      background: none;
+      border: none;
+    }
+    .modal-actions {
+      margin-top: 2em;
+      display: flex;
+      gap: 1em;
+      justify-content: center;
+    }
+    .modal .action-btn {
+      min-width: 90px;
+      padding: 0.6em 1.5em;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 2.3em;
+      background: #2196f3;
+      color: #fff;
+      padding: 1em 2.1em;
+      border-radius: 18px;
+      font-weight: 600;
+      font-size: 1.09em;
+      box-shadow: 0 2px 8px #1976d2bb;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s, bottom 0.35s;
+      z-index: 1200;
+    }
+    .toast.show {
+      opacity: 1;
+      bottom: 3.8em;
+      pointer-events: auto;
+    }
+    .toast.error { background: #e53935; box-shadow: 0 2px 8px #b71c1c55; }
+    @media (max-width: 1100px) {
+      .container { padding: 1.2rem 0.2rem;}
+      .table-responsive { min-width: 0; }
+      table { min-width: 480px;}
+      th, td { min-width: 80px; }
+    }
+    @media (max-width: 700px) {
+      .container { padding: 1.2rem 0.2rem;}
+      table { min-width: 330px; }
+      th, td { min-width: 70px; }
+      h1 { font-size: 1.2rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>All Counselors</h1>
+    <div class="search-bar">
+      <input type="text" id="filterInput" placeholder="Search by name or email..." aria-label="search counselors"/>
+    </div>
+    <div class="table-responsive">
+      <table id="counselorTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="counselorTableBody"></tbody>
+      </table>
+    </div>
+    <div id="noResults" style="display:none;text-align:center;color:#888;font-size:1.1em; margin-top:2em;">No counselors found.</div>
+    <a class="back-btn" href="dashboard_admin.html">Back to Dashboard</a>
+  </div>
+
+  <!-- Modal for "View" -->
+  <div class="modal" id="viewModal">
+    <div class="modal-content" id="viewModalContent">
+      <button class="modal-close" onclick="closeModal('viewModal')" aria-label="Close">&times;</button>
+      <div id="viewDetails"></div>
+    </div>
+  </div>
+  <!-- Modal for "Deactivate/Activate" -->
+  <div class="modal" id="statusModal">
+    <div class="modal-content" id="statusModalContent">
+      <button class="modal-close" onclick="closeModal('statusModal')" aria-label="Close">&times;</button>
+      <div id="statusDetails"></div>
+      <div class="modal-actions" id="statusModalActions"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    // Theme toggle logic (optional for your use)
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    if (themeToggle) {
+      themeToggle.onclick = () => {
+        const curr = document.documentElement.getAttribute('data-theme');
+        setTheme(curr === "dark" ? "light" : "dark");
+      };
+      (() => {
+        let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+        setTheme(theme);
+      })();
+    }
+
+    // Toast logic
+    function showToast(msg, error=false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      if(error) toast.classList.add("error");
+      else toast.classList.remove("error");
+      toast.classList.add("show");
+      setTimeout(() => { toast.classList.remove("show"); }, 2500);
+    }
+
+    // Store all counselors
+    let allCounselors = {};
+
+    // Filtering
+    document.getElementById('filterInput').oninput = function() {
+      const val = this.value.trim().toLowerCase();
+      filterAndRender(val);
+    };
+
+    function filterAndRender(filterVal) {
+      const tbody = document.getElementById('counselorTableBody');
+      tbody.innerHTML = '';
+      const ids = Object.keys(allCounselors).filter(id => {
+        const c = allCounselors[id];
+        return (
+          (c.name && c.name.toLowerCase().includes(filterVal)) ||
+          (c.email && c.email.toLowerCase().includes(filterVal))
+        );
+      });
+      if (ids.length === 0) {
+        document.getElementById('counselorTable').style.display = "none";
+        document.getElementById('noResults').style.display = "block";
+        return;
+      }
+      document.getElementById('noResults').style.display = "none";
+      document.getElementById('counselorTable').style.display = "table";
+      ids.forEach(id => {
+        const c = allCounselors[id];
+        const status = (c.is_active === false) ? "Inactive" : "Active";
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', c.id);
+        tr.innerHTML = `
+            <td>${c.name ? escapeHtml(c.name) : ""}</td>
+            <td>${c.email ? escapeHtml(c.email) : ""}</td>
+            <td>${c.gender ? escapeHtml(c.gender) : ""}</td>
+            <td>${c.phone_number ? escapeHtml(c.phone_number) : ""}</td>
+            <td id="status-cell-${c.id}">${status}</td>
+            <td>
+              <button class="action-btn view-btn" data-id="${c.id}">View</button>
+              ${
+                status === "Active"
+                ? `<button class="action-btn deactivate status-btn" data-id="${c.id}" data-action="deactivate" data-name="${escapeHtml(c.name || "")}">Deactivate</button>`
+                : `<button class="action-btn activate status-btn" data-id="${c.id}" data-action="activate" data-name="${escapeHtml(c.name || "")}">Activate</button>`
+              }
+            </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      attachButtonListeners();
+    }
+
+    function attachButtonListeners() {
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.onclick = function() {
+          const c = allCounselors[this.getAttribute('data-id')];
+          viewCounselor(c);
+        };
+      });
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.onclick = function() {
+          const id = this.getAttribute('data-id');
+          const action = this.getAttribute('data-action');
+          const name = this.getAttribute('data-name');
+          changeStatus(id, action, name);
+        };
+      });
+    }
+
+    // HTML escaping for safety
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[m];
+      });
+    }
+
+    // Fetch counselors from backend API and populate table
+    function fetchAndRenderCounselors() {
+      fetch('http://127.0.0.1:8000/counselors/')
+        .then(response => response.json())
+        .then(counselors => {
+          allCounselors = {};
+          if (Array.isArray(counselors) && counselors.length > 0) {
+            counselors.forEach((c) => { allCounselors[c.id] = c; });
+            filterAndRender(document.getElementById('filterInput').value.trim().toLowerCase());
+          } else {
+            document.getElementById('counselorTable').style.display = "none";
+            document.getElementById('noResults').style.display = "block";
+          }
+        })
+        .catch(() => {
+          document.getElementById('counselorTableBody').innerHTML =
+            `<tr><td colspan="6" style="text-align:center;color:#e53935;">Error loading counselors.</td></tr>`;
+        });
+    }
+    fetchAndRenderCounselors();
+
+    // Modal logic
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("show");
+    }
+    // Show details in view modal
+    function viewCounselor(c) {
+      let html = `<h2 style="color:var(--primary-dark);margin-bottom:0.4em;">${escapeHtml(c.name) || ""}</h2>
+        <p><strong>Email:</strong> ${escapeHtml(c.email) || ""}</p>
+        <p><strong>Gender:</strong> ${escapeHtml(c.gender) || ""}</p>
+        <p><strong>Phone:</strong> ${escapeHtml(c.phone_number) || ""}</p>
+        <p><strong>Status:</strong> ${(c.is_active === false) ? "Inactive" : "Active"}</p>
+        <p><strong>Role:</strong> ${escapeHtml(c.role) || ""}</p>
+      `;
+      document.getElementById('viewDetails').innerHTML = html;
+      document.getElementById('viewModal').classList.add("show");
+      setTimeout(() => {
+        document.getElementById('viewModalContent').focus();
+      }, 100);
+    }
+    // Activate/Deactivate logic with modal
+    function changeStatus(id, action, name) {
+      const isDeactivating = action === 'deactivate';
+      document.getElementById('statusDetails').innerHTML = `
+        <h3 style="margin-top:0;font-size:1.2em;">${isDeactivating ? "Deactivate" : "Activate"} Counselor</h3>
+        <p>Are you sure you want to <strong>${isDeactivating ? "deactivate" : "activate"} ${escapeHtml(name)}</strong>?</p>
+      `;
+      document.getElementById('statusModalActions').innerHTML = `
+        <button class="action-btn ${isDeactivating ? "deactivate" : "activate"}" onclick="confirmChangeStatus(${id}, '${action}')">${isDeactivating ? "Deactivate" : "Activate"}</button>
+        <button class="action-btn" onclick="closeModal('statusModal')">Cancel</button>
+      `;
+      document.getElementById('statusModal').classList.add("show");
+      setTimeout(() => {
+        document.getElementById('statusModalContent').focus();
+      }, 100);
+    }
+    // Confirm activate/deactivate and update backend (dummy for now)
+    function confirmChangeStatus(id, action) {
+      fetch(`http://127.0.0.1:8000/users/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: action === 'activate' })
+      })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        showToast(`Counselor ${action === "activate" ? "activated" : "deactivated"} successfully!`);
+        allCounselors[id].is_active = (action === "activate");
+        filterAndRender(document.getElementById('filterInput').value.trim().toLowerCase());
+        closeModal('statusModal');
+      })
+      .catch(() => {
+        closeModal('statusModal');
+        showToast("Failed to update status.", true);
+      });
+    }
+
+    // Modal: close on escape or click outside
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === "Escape") {
+        closeModal('viewModal');
+        closeModal('statusModal');
+      }
+    });
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('mousedown', function(e){
+        if(e.target === this) closeModal(this.id);
+      });
+    });
+
+  </script>
+</body>
+</html>

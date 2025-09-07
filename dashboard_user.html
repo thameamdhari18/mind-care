@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --danger: #e53935;
+      --danger-dark: #d32f2f;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+    }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      transition: background 0.4s;
+      font-size: var(--base-font-size, 16px);
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+    }
+    .container {
+      background: var(--surface);
+      max-width: 440px;
+      width: 98vw;
+      padding: 2.5rem 2rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    .theme-toggle {
+      position: absolute;
+      top: 19px;
+      right: 22px;
+      background: none;
+      border: none;
+      font-size: 1.38rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      color: var(--primary-dark);
+      outline: none;
+    }
+    .lang-selector {
+      position: absolute;
+      top: 19px;
+      left: 22px;
+      background: var(--surface);
+      color: var(--primary-dark);
+      border: 1px solid #bfc8d8;
+      border-radius: 8px;
+      font-size: 1rem;
+      padding: 0.15em 0.6em;
+      cursor: pointer;
+      outline: none;
+    }
+    .fontsize-controls {
+      position: absolute;
+      top: 60px;
+      right: 18px;
+      display: flex;
+      gap: 3px;
+    }
+    .fontsize-btn {
+      background: #e5f1fc;
+      border: 1px solid #bfc8d8;
+      border-radius: 7px;
+      font-size: 1.08em;
+      padding: 2px 8px;
+      margin: 0 1px;
+      cursor: pointer;
+      color: #1769aa;
+    }
+    .fontsize-btn:active { background: #d0e2fa; }
+    h2 {
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-align: center;
+      margin-top: 0.4rem;
+    }
+    .greeting {
+      font-size: 1.09rem;
+      color: #555;
+      text-align: center;
+      margin-bottom: 1.1rem;
+      letter-spacing: 0.01em;
+      min-height: 1.5em;
+      user-select: none;
+    }
+    .dashboard-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+      margin-top: 2.4rem;
+      align-items: center;
+    }
+    .dashboard-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 11px;
+      padding: 1.15em 0.7em 1.15em 0.9em;
+      font-size: 1.17rem;
+      font-weight: 600;
+      width: 100%;
+      max-width: 330px;
+      box-shadow: 0 2px 8px #e3e8ee;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.8em;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: background 0.17s, transform 0.12s, box-shadow 0.17s;
+      will-change: transform;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .dashboard-btn.logout-btn {
+      background: linear-gradient(135deg, var(--danger) 0%, #ef5350 100%);
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(229, 57, 53, 0.3);
+    }
+    .dashboard-btn:active {
+      transform: scale(0.98);
+    }
+    .dashboard-btn:hover, .dashboard-btn:focus {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 14px #d0e2fa;
+      transform: translateY(-2px) scale(1.01);
+    }
+    .dashboard-btn.logout-btn:hover, .dashboard-btn.logout-btn:focus {
+      background: linear-gradient(135deg, var(--danger-dark) 0%, #d32f2f 100%);
+      box-shadow: 0 4px 16px rgba(229, 57, 53, 0.5);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .dashboard-btn .emoji {
+      font-size: 1.6em;
+      margin-right: 0.17em;
+      filter: drop-shadow(0 2px 8px #e3e8ee);
+      transition: transform 0.2s;
+    }
+    .dashboard-btn.logout-btn .emoji {
+      filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.6));
+    }
+    .dashboard-btn:hover .emoji {
+      transform: scale(1.18) rotate(-7deg);
+    }
+    .dashboard-btn .arrow {
+      margin-left: auto;
+      font-size: 1.3em;
+      opacity: 0.74;
+      transition: transform 0.2s;
+    }
+    .dashboard-btn:hover .arrow { transform: translateX(6px);}
+    .dashboard-description {
+      margin-top: 2rem;
+      font-size: 1.09rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.65;
+      margin-bottom: 0.7rem;
+    }
+    .quick-key {
+      margin-top: 0.3em;
+      font-size: 0.94em;
+      color: #888;
+      text-align: center;
+      margin-bottom: 0.6em;
+    }
+    .recent-activities {
+      width: 100%;
+      max-width: 340px;
+      background: #eaf2fc;
+      color: #29304d;
+      padding: 0.97em 1.1em 0.7em;
+      border-radius: 12px;
+      font-size: 1.02rem;
+      box-shadow: 0 1px 4px #b5c1e3;
+      margin: 0.7em 0 0.7em;
+      animation: fadein 1s;
+    }
+    .recent-activities ul {
+      padding-left: 1.2em;
+      margin: 0.2em 0 0.1em;
+      font-size: 0.99em;
+    }
+    .announcement-box {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+      color: white;
+      padding: 1em 1.2em;
+      border-radius: 12px;
+      margin: 1.1em 0 0.5em;
+      font-size: 1.04rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      animation: fadein 1s;
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+      border: 2px solid #ff5252;
+    }
+    .announcement-box .icon {
+      font-size: 1.18em;
+      margin-right: 0.4em;
+    }
+    .close-announcement {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 0.9em;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-announcement:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .fun-fact, .tip-box, .streak-box, .motiv-quote, .reminder-box {
+      background: var(--accent);
+      color: #29304d;
+      padding: 1em 1.2em;
+      border-radius: 12px;
+      margin: 1.1em 0 0.5em;
+      font-size: 1.04rem;
+      text-align: center;
+      box-shadow: 0 1px 4px #b5c1e3;
+      animation: fadein 1s;
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+    }
+    .reminder-box button {
+      margin-left: 0.5em;
+      background: #fff;
+      border: 1px solid #bfc8d8;
+      border-radius: 7px;
+      font-size: 0.92em;
+      padding: 0.11em 0.6em;
+      color: #1769aa;
+      cursor: pointer;
+    }
+    .fun-fact .icon, .tip-box .icon, .streak-box .icon, .motiv-quote .icon, .reminder-box .icon {
+      font-size: 1.18em;
+      margin-right: 0.4em;
+    }
+    .fun-fact .refresh-btn, .motiv-quote .refresh-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: none;
+      border: none;
+      color: #1769aa;
+      font-size: 1.06em;
+      cursor: pointer;
+      transition: color 0.17s;
+    }
+    .fun-fact .refresh-btn:hover, .motiv-quote .refresh-btn:hover {
+      color: #1e88e5;
+    }
+    .streak-number {
+      font-weight: bold;
+      color: #1769aa;
+      font-size: 1.24em;
+    }
+    .snackbar {
+      visibility: hidden;
+      min-width: 200px;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 13px 18px;
+      position: fixed;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-size: 1.06rem;
+      opacity: 0;
+      transition: opacity 0.4s, visibility 0.4s;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .snackbar.show {
+      visibility: visible;
+      opacity: 0.96;
+      animation: snackbar-pop 0.5s cubic-bezier(.42,1.2,.68,1.1);
+    }
+    @keyframes snackbar-pop {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.95);}
+      60% { transform: translateX(-50%) scale(1.07);}
+      100% { opacity: 1; transform: translateX(-50%) scale(1);}
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1.3rem 0.2rem 1.2rem;}
+      h2 { font-size: 1.29rem;}
+      .dashboard-btn { font-size: 1.03rem; }
+      .fun-fact, .tip-box, .streak-box, .motiv-quote, .reminder-box, .recent-activities { font-size: 0.99rem; }
+    }
+    @media (max-width: 400px) {
+      .container { border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Language Selector -->
+    <select class="lang-selector" id="langSelector" title="Choose language">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="ta">தமிழ்</option>
+      <option value="hi">हिन्दी</option>
+      <option value="kn">ಕನ್ನಡ</option>
+    </select>
+    <!-- Font size controls -->
+    <div class="fontsize-controls">
+      <button class="fontsize-btn" id="decreaseFont" title="Decrease font size">A-</button>
+      <button class="fontsize-btn" id="increaseFont" title="Increase font size">A+</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+    <h2 id="userWelcome">Welcome!</h2>
+    <div class="greeting" id="greeting"></div>
+    <div class="quick-key">Quick theme: <kbd>Shift</kbd> + <kbd>D</kbd> | Log out: <kbd>Shift</kbd> + <kbd>L</kbd></div>
+    <!-- Announcements/Notifications -->
+    <div class="announcement-box" id="announcementBox" style="display:none;">
+      <span class="icon">📢</span>
+      <div id="announcementContent"></div>
+      <button class="close-announcement" id="closeAnnouncement" title="Close announcement">✖️</button>
+    </div>
+    <div class="streak-box" id="streakBox"><span class="icon">🔥</span>You have a <span class="streak-number" id="streakNum">0</span> day mood logging streak!</div>
+    <div class="fun-fact" id="funFactBox">
+      <span class="icon">💡</span>
+      <span id="funFactText">Mental health is just as important as physical health.</span>
+      <button class="refresh-btn" id="newFactBtn" title="Show another fact">🔄</button>
+    </div>
+    <div class="motiv-quote" id="motivQuoteBox">
+      <span class="icon">🌟</span>
+      <span id="motivQuoteText">"Every day may not be good, but there's something good in every day."</span>
+      <button class="refresh-btn" id="newQuoteBtn" title="Show another quote">🔄</button>
+    </div>
+    <div class="tip-box" id="tipBox">
+      <span class="icon">🧠</span>
+      <span id="tipText">Tip: Take a few deep breaths and check in with yourself today.</span>
+    </div>
+    <!-- Mood Reminder -->
+    <div class="reminder-box" id="reminderBox">
+      <span class="icon">⏰</span>
+      <span id="reminderText">No daily reminder set.</span>
+      <button id="setReminderBtn">Set Reminder</button>
+      <button id="clearReminderBtn" style="display:none;">Clear</button>
+    </div>
+    <!-- Recent Activity -->
+    <div class="recent-activities" id="recentActivities">
+      <strong>Recent Activity</strong>
+      <ul id="activityList"></ul>
+    </div>
+    <div class="dashboard-description" id="descText">
+      You can log your mood, view your mood history, or book a session with a counselor.
+    </div>
+    <!-- Export Buttons -->
+    <div style="margin:1.1em 0 0.6em; display:flex; gap:0.7em;">
+      <button class="fontsize-btn" id="exportCsvBtn" title="Export mood logs as CSV">Export CSV</button>
+      <button class="fontsize-btn" id="exportJsonBtn" title="Export mood logs as JSON">Export JSON</button>
+    </div>
+    <div class="dashboard-actions">
+      <button class="dashboard-btn" id="logMoodBtn">
+        <span class="emoji">📝</span> <span id="btnLogMood">Log Mood</span> <span class="arrow">→</span>
+      </button>
+      <button class="dashboard-btn" id="viewLogsBtn">
+        <span class="emoji">📊</span> <span id="btnViewLogs">View Mood Logs</span> <span class="arrow">→</span>
+      </button>
+      <button class="dashboard-btn" id="bookSessionBtn">
+        <span class="emoji">🤝</span> <span id="btnBookSession">Book Session</span> <span class="arrow">→</span>
+      </button>
+      <button class="dashboard-btn" id="feedbackBtn">
+        <span class="emoji">💬</span> <span id="btnFeedback">Feedback / Suggestion</span> <span class="arrow">→</span>
+      </button>
+      <button class="dashboard-btn logout-btn" id="logoutBtn" aria-label="Log out of the application">
+        <span class="emoji">🚪</span> <span id="btnLogout">Log Out</span> <span class="arrow">→</span>
+      </button>
+    </div>
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(40,52,80,.13); z-index:999; align-items:center; justify-content:center;">
+      <div style="background:var(--surface); border-radius:15px; padding:2em 1.3em 1.3em; max-width:340px; width:94vw; box-shadow:var(--shadow); position:relative;">
+        <button id="closeFeedback" style="background:none; border:none; color:#1769aa; font-size:1.25em; position:absolute; right:12px; top:10px; cursor:pointer;">✖️</button>
+        <h3 style="margin-top:0; color:var(--primary-dark); margin-bottom:0.7em; text-align:center;" id="feedbackTitle">Share Feedback</h3>
+        <textarea id="feedbackInput" rows="4" maxlength="400" style="width:100%; border-radius:9px; border:1px solid #bfc8d8; font-size:1em; padding:0.85em; margin-bottom:1em; resize:none;" placeholder="Your feedback or suggestion..."></textarea>
+        <button id="submitFeedback" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:0.8em 1.2em; font-size:1.04em; font-weight:600; width:100%; cursor:pointer;">Send</button>
+        <div id="feedbackMsg" style="margin-top:0.7em; font-size:0.98em; text-align:center; color:green;"></div>
+      </div>
+    </div>
+    <div id="snackbar" class="snackbar" role="status" aria-live="polite"></div>
+  </div>
+  <!-- Chatbase Embed -->
+  <script>
+    (function(){
+      if(!window.chatbase || window.chatbase("getState")!=="initialized"){
+        window.chatbase=(...arguments)=>{
+          if(!window.chatbase.q){window.chatbase.q=[]}
+          window.chatbase.q.push(arguments)
+        };
+        window.chatbase=new Proxy(window.chatbase,{
+          get(target,prop){
+            if(prop==="q"){return target.q}
+            return(...args)=>target(prop,...args)
+          }
+        })
+      }
+      const onLoad=function(){
+        const script=document.createElement("script");
+        script.src="https://www.chatbase.co/embed.min.js";
+        script.id="ajkXdReu-ipN4ySKdHoI2";   // your bot ID
+        script.domain="www.chatbase.co";
+        document.body.appendChild(script)
+      };
+      if(document.readyState==="complete"){onLoad()}
+      else{window.addEventListener("load",onLoad)}
+    })();
+  </script>
+  <script>
+    // --- Theme Toggle ---
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    window.addEventListener('keydown', (e) => {
+      if (e.shiftKey && e.key.toLowerCase() === 'd') {
+        themeToggle.click();
+      }
+    });
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // --- Font Size Accessibility ---
+    function setFontSize(size) {
+      document.documentElement.style.setProperty('--base-font-size', size + 'px');
+      localStorage.setItem('fontSize', size);
+    }
+    let fontSize = parseInt(localStorage.getItem('fontSize') || 16, 10);
+    setFontSize(fontSize);
+    document.getElementById('increaseFont').onclick = () => {
+      if (fontSize < 22) setFontSize(++fontSize);
+    };
+    document.getElementById('decreaseFont').onclick = () => {
+      if (fontSize > 12) setFontSize(--fontSize);
+    };
+
+    // --- Language Selector / Multi-language ---
+    const langSelector = document.getElementById('langSelector');
+    const langStrings = {
+      en: {
+        userWelcome: "Welcome!",
+        greeting: "Hello, let's check in with your mood today!",
+        descText: "You can log your mood, view your mood history, or book a session with a counselor.",
+        btnLogMood: "Log Mood",
+        btnViewLogs: "View Mood Logs",
+        btnBookSession: "Book Session",
+        btnFeedback: "Feedback / Suggestion",
+        btnLogout: "Log Out",
+        feedbackTitle: "Share Feedback",
+        feedbackPlaceholder: "Your feedback or suggestion...",
+        submitFeedback: "Send",
+        feedbackEmpty: "Please enter your feedback.",
+        feedbackSuccess: "Thank you for your feedback!",
+        successLogout: "Logged out successfully!",
+        funFactText: "Mental health is just as important as physical health.",
+        motivQuoteText: "Every day may not be good, but there's something good in every day.",
+        tipText: "Tip: Take a few deep breaths and check in with yourself today.",
+        reminderText: "No daily reminder set.",
+        streakBox: "You have a <span class='streak-number' id='streakNum'>0</span> day mood logging streak!",
+        recentActivities: "Recent Activity",
+        exportCsvBtn: "Export CSV",
+        exportJsonBtn: "Export JSON",
+        setReminderBtn: "Set Reminder",
+        clearReminderBtn: "Clear"
+      },
+      es: {
+        userWelcome: "¡Bienvenido!",
+        greeting: "¡Hola, revisemos tu estado de ánimo hoy!",
+        descText: "Puedes registrar tu estado de ánimo, ver tu historial de estados de ánimo o reservar una sesión con un consejero.",
+        btnLogMood: "Registrar Estado",
+        btnViewLogs: "Ver Registros de Estado",
+        btnBookSession: "Reservar Sesión",
+        btnFeedback: "Comentarios / Sugerencias",
+        btnLogout: "Cerrar Sesión",
+        feedbackTitle: "Compartir Comentarios",
+        feedbackPlaceholder: "Tus comentarios o sugerencias...",
+        submitFeedback: "Enviar",
+        feedbackEmpty: "Por favor escribe tu opinión.",
+        feedbackSuccess: "¡Gracias por tu opinión!",
+        successLogout: "¡Sesión cerrada exitosamente!",
+        funFactText: "La salud mental es tan importante como la salud física.",
+        motivQuoteText: "No todos los días pueden ser buenos, pero hay algo bueno en cada día.",
+        tipText: "Consejo: Respira profundamente y reflexiona sobre ti mismo hoy.",
+        reminderText: "No hay recordatorio diario configurado.",
+        streakBox: "¡Tienes una racha de <span class='streak-number' id='streakNum'>0</span> días registrando tu estado de ánimo!",
+        recentActivities: "Actividad Reciente",
+        exportCsvBtn: "Exportar CSV",
+        exportJsonBtn: "Exportar JSON",
+        setReminderBtn: "Configurar Recordatorio",
+        clearReminderBtn: "Borrar"
+      },
+      ta: {
+        userWelcome: "வரவேற்கிறோம்!",
+        greeting: "வணக்கம், இன்று உங்கள் மனநிலையை சரிபார்ப்போம்!",
+        descText: "நீங்கள் உங்கள் மனநிலையை பதிவு செய்யலாம், மனநிலை வரலாற்றைப் பார்க்கலாம் அல்லது ஆலோசகருடன் அமர்வு முன்பதிவு செய்யலாம்.",
+        btnLogMood: "மனநிலையை பதிவு செய்",
+        btnViewLogs: "மனநிலை பதிவுகளைப் பார்",
+        btnBookSession: "அமர்வு முன்பதிவு செய்",
+        btnFeedback: "கருத்து / பரிந்துரை",
+        btnLogout: "வெளியேறு",
+        feedbackTitle: "கருத்து பகிரவும்",
+        feedbackPlaceholder: "உங்கள் கருத்து அல்லது பரிந்துரை...",
+        submitFeedback: "அனுப்பு",
+        feedbackEmpty: "தயவு செய்து உங்கள் கருத்தை உள்ளிடவும்.",
+        feedbackSuccess: "உங்கள் கருத்துக்கு நன்றி!",
+        successLogout: "வெற்றிகரமாக வெளியேறினார்!",
+        funFactText: "மன ஆரோக்கியம் உடல் ஆரோக்கியம் போலவே முக்கியமானது.",
+        motivQuoteText: "ஒவ்வொரு நாளும் நல்லதாக இருக்காது, ஆனால் ஒவ்வொரு நாளிலும் ஏதோ ஒரு நல்லது உள்ளது.",
+        tipText: "ஆலோசனை: இன்று சில ஆழமான மூச்சுகளை எடுத்து உங்களைப் பரிசோதியுங்கள்.",
+        reminderText: "தினசரி நினைவூட்டல் அமைக்கப்படவில்லை.",
+        streakBox: "நீங்கள் <span class='streak-number' id='streakNum'>0</span> நாட்கள் மனநிலை பதிவு செய்யும் தொடர்ச்சியில் உள்ளீர்கள்!",
+        recentActivities: "சமீபத்திய செயல்பாடு",
+        exportCsvBtn: "CSV ஆக ஏற்றுமதி செய்",
+        exportJsonBtn: "JSON ஆக ஏற்றுமதி செய்",
+        setReminderBtn: "நினைவூட்டல் அமை",
+        clearReminderBtn: "நீக்கு"
+      },
+      hi: {
+        userWelcome: "स्वागत है!",
+        greeting: "नमस्ते, आज अपने मूड की जाँच करें!",
+        descText: "आप अपना मूड लॉग कर सकते हैं, मूड इतिहास देख सकते हैं, या काउंसलर के साथ सत्र बुक कर सकते हैं।",
+        btnLogMood: "मूड लॉग करें",
+        btnViewLogs: "मूड लॉग देखें",
+        btnBookSession: "सत्र बुक करें",
+        btnFeedback: "प्रतिक्रिया / सुझाव",
+        btnLogout: "लॉग आउट",
+        feedbackTitle: "प्रतिक्रिया साझा करें",
+        feedbackPlaceholder: "आपकी प्रतिक्रिया या सुझाव...",
+        submitFeedback: "भेजें",
+        feedbackEmpty: "कृपया अपनी प्रतिक्रिया दर्ज करें।",
+        feedbackSuccess: "आपकी प्रतिक्रिया के लिए धन्यवाद!",
+        successLogout: "सफलतापूर्वक लॉग आउट किया गया!",
+        funFactText: "मानसिक स्वास्थ्य शारीरिक स्वास्थ्य जितना ही महत्वपूर्ण है।",
+        motivQuoteText: "हर दिन अच्छा नहीं हो सकता, लेकिन हर दिन में कुछ अच्छा होता है।",
+        tipText: "सुझाव: आज कुछ गहरी साँसें लें और अपने आप की जाँच करें।",
+        reminderText: "कोई दैनिक अनुस्मारक सेट नहीं किया गया।",
+        streakBox: "आपके पास <span class='streak-number' id='streakNum'>0</span> दिन का मूड लॉगिंग स्ट्रीक है!",
+        recentActivities: "हाल की गतिविधि",
+        exportCsvBtn: "CSV के रूप में निर्यात करें",
+        exportJsonBtn: "JSON के रूप में निर्यात करें",
+        setReminderBtn: "अनुस्मारक सेट करें",
+        clearReminderBtn: "हटाएँ"
+      },
+      kn: {
+        userWelcome: "ಸ್ವಾಗತ!",
+        greeting: "ನಮಸ್ಕಾರ, ಇಂದು ನಿಮ್ಮ ಮನಸ್ಥಿತಿಯನ್ನು ಪರಿಶೀಲಿಸೋಣ!",
+        descText: "ನೀವು ನಿಮ್ಮ ಮನಸ್ಥಿತಿಯನ್ನು ದಾಖಲಿಸಬಹುದು, ಮನಸ್ಥಿತಿ ಇತಿಹಾಸವನ್ನು ವೀಕ್ಷಿಸಬಹುದು ಅಥವಾ ಕೌನ್ಸೆಲರ್ ಜೊತೆ ಸೆಷನ್ ಬುಕ್ ಮಾಡಬಹುದು.",
+        btnLogMood: "ಮನಸ್ಥಿತಿಯನ್ನು ದಾಖಲಿಸಿ",
+        btnViewLogs: "ಮನಸ್ಥಿತಿ ದಾಖಲೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
+        btnBookSession: "ಸೆಷನ್ ಬುಕ್ ಮಾಡಿ",
+        btnFeedback: "ಪ್ರತಿಕ್ರಿಯೆ / ಸಲಹೆ",
+        btnLogout: "ಲಾಗ್ ಔಟ್",
+        feedbackTitle: "ಪ್ರತಿಕ್ರಿಯೆ ಹಂಚಿಕೊಳ್ಳಿ",
+        feedbackPlaceholder: "ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆ ಅಥವಾ ಸಲಹೆ...",
+        submitFeedback: "ಕಳುಹಿಸಿ",
+        feedbackEmpty: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+        feedbackSuccess: "ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗೆ ಧನ್ಯವಾದಗಳು!",
+        successLogout: "ಯಶಸ್ವಿಯಾಗಿ ಲಾಗ್ ಔಟ್ ಆಗಿದೆ!",
+        funFactText: "ಮಾನಸಿಕ ಆರೋಗ್ಯವು ದೈಹಿಕ ಆರೋಗ್ಯದಷ್ಟೇ ಮುಖ್ಯವಾಗಿದೆ.",
+        motivQuoteText: "ಪ್ರತಿ ದಿನವೂ ಒಳ್ಳೆಯದಾಗಿರದಿರಬಹುದು, ಆದರೆ ಪ್ರತಿ ದಿನದಲ್ಲೂ ಏನಾದರೂ ಒಳ್ಳೆಯದು ಇರುತ್ತದೆ.",
+        tipText: "ಸಲಹೆ: ಇಂದು ಕೆಲವು ಆಳವಾದ ಉಸಿರಾಟಗಳನ್ನು ತೆಗೆದುಕೊಂಡು ನಿಮ್ಮನ್ನು ಪರಿಶೀಲಿಸಿಕೊಳ್ಳಿ.",
+        reminderText: "ಯಾವುದೇ ದೈನಂದಿನ ಜ್ಞಾಪನೆ ಸೆಟ್ ಮಾಡಿಲ್ಲ.",
+        streakBox: "ನೀವು <span class='streak-number' id='streakNum'>0</span> ದಿನಗಳ ಮನಸ್ಥಿತಿ ದಾಖಲೆಯ ಸ್ಟ್ರೀಕ್ ಹೊಂದಿದ್ದೀರಿ!",
+        recentActivities: "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
+        exportCsvBtn: "CSV ಆಗಿ ರಫ್ತು ಮಾಡಿ",
+        exportJsonBtn: "JSON ಆಗಿ ರಫ್ತು ಮಾಡಿ",
+        setReminderBtn: "ಜ್ಞಾಪನೆ ಸೆಟ್ ಮಾಡಿ",
+        clearReminderBtn: "ತೆಗೆದುಹಾಕಿ"
+      }
+    };
+
+    let lang = localStorage.getItem('lang') || 'en';
+
+    function setLang(language) {
+      lang = language;
+      localStorage.setItem('lang', lang);
+      const strings = langStrings[lang];
+      document.getElementById('userWelcome').textContent = strings.userWelcome;
+      document.getElementById('greeting').textContent = strings.greeting;
+      document.getElementById('descText').textContent = strings.descText;
+      document.getElementById('btnLogMood').textContent = strings.btnLogMood;
+      document.getElementById('btnViewLogs').textContent = strings.btnViewLogs;
+      document.getElementById('btnBookSession').textContent = strings.btnBookSession;
+      document.getElementById('btnFeedback').textContent = strings.btnFeedback;
+      document.getElementById('btnLogout').textContent = strings.btnLogout;
+      document.getElementById('feedbackTitle').textContent = strings.feedbackTitle;
+      document.getElementById('feedbackInput').placeholder = strings.feedbackPlaceholder;
+      document.getElementById('submitFeedback').textContent = strings.submitFeedback;
+      document.getElementById('funFactText').textContent = strings.funFactText;
+      document.getElementById('motivQuoteText').textContent = strings.motivQuoteText;
+      document.getElementById('tipText').textContent = strings.tipText;
+      document.getElementById('reminderText').textContent = strings.reminderText;
+      document.getElementById('streakBox').innerHTML = `<span class="icon">🔥</span>${strings.streakBox}`;
+      document.getElementById('recentActivities').firstChild.textContent = strings.recentActivities;
+      document.getElementById('exportCsvBtn').textContent = strings.exportCsvBtn;
+      document.getElementById('exportJsonBtn').textContent = strings.exportJsonBtn;
+      document.getElementById('setReminderBtn').textContent = strings.setReminderBtn;
+      document.getElementById('clearReminderBtn').textContent = strings.clearReminderBtn;
+      langSelector.value = lang;
+    }
+
+    // --- Snackbar ---
+    const snackbar = document.getElementById('snackbar');
+    function showSnackbar(msg, color="#222", icon="") {
+      snackbar.innerHTML = icon ? `<span>${icon}</span> ${msg}` : msg;
+      snackbar.style.background = color;
+      snackbar.className = "snackbar show";
+      setTimeout(() => { snackbar.className = "snackbar"; }, 2300);
+    }
+    function showSuccess(msg) { showSnackbar(msg, "#2196f3", "✅"); }
+
+    // --- Check Authentication ---
+    const logoutBtn = document.getElementById('logoutBtn');
+    function checkAuth() {
+      const isLoggedIn = !!localStorage.getItem('authToken');
+      logoutBtn.style.display = isLoggedIn ? 'flex' : 'none';
+    }
+
+    // --- Feedback Modal ---
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const feedbackModal = document.getElementById('feedbackModal');
+    const closeFeedback = document.getElementById('closeFeedback');
+    const submitFeedback = document.getElementById('submitFeedback');
+    const feedbackInput = document.getElementById('feedbackInput');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    feedbackBtn.onclick = () => {
+      feedbackModal.style.display = "flex";
+      feedbackInput.value = "";
+      feedbackMsg.textContent = "";
+    };
+    closeFeedback.onclick = () => feedbackModal.style.display = "none";
+    submitFeedback.onclick = () => {
+      const feedback = feedbackInput.value.trim();
+      if (!feedback) {
+        feedbackMsg.textContent = langStrings[lang].feedbackEmpty;
+        feedbackMsg.style.color = "red";
+        return;
+      }
+      feedbackMsg.textContent = langStrings[lang].feedbackSuccess;
+      feedbackMsg.style.color = "green";
+      setTimeout(() => feedbackModal.style.display = "none", 1800);
+      console.log("Feedback submitted:", feedback);
+    };
+    feedbackInput.oninput = () => feedbackMsg.textContent = "";
+
+    // --- Navigation ---
+    document.getElementById('logMoodBtn').onclick = function() {
+      console.log("Navigating to log-mood.html");
+      window.location.href = "log-mood.html";
+    };
+    document.getElementById('viewLogsBtn').onclick = function() {
+      console.log("Navigating to view-mood.html");
+      window.location.href = "view-mood.html";
+    };
+    document.getElementById('bookSessionBtn').onclick = function() {
+      console.log("Navigating to book-session.html");
+      window.location.href = "book-session.html";
+    };
+
+    // --- Fetch Mood Logs from Database via API ---
+    async function getMoodLogs() {
+      try {
+        const response = await fetch('/api/mood-logs', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const logs = await response.json();
+        return logs;
+      } catch (error) {
+        console.error('Error fetching mood logs:', error);
+        showSnackbar("Failed to fetch mood logs!", "#e53935", "⚠️");
+        return [];
+      }
+    }
+
+    // --- Export to CSV ---
+    document.getElementById('exportCsvBtn').onclick = async function() {
+      const logs = await getMoodLogs();
+      if (!logs || logs.length === 0) {
+        showSnackbar("No mood logs to export!", "#e53935", "⚠️");
+        return;
+      }
+
+      // Convert to CSV
+      const headers = ["Date,Mood,Notes"];
+      const rows = logs.map(log =>
+        `"${log.date || ''}","${log.mood || ''}","${(log.notes || '').replace(/"/g, '""')}"`
+      );
+      const csvContent = headers.concat(rows).join("\n");
+
+      // Create and download CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `mood_logs_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showSuccess(langStrings[lang].exportCsvBtn + " successful!");
+    };
+
+    // --- Export to JSON ---
+    document.getElementById('exportJsonBtn').onclick = async function() {
+      const logs = await getMoodLogs();
+      if (!logs || logs.length === 0) {
+        showSnackbar("No mood logs to export!", "#e53935", "⚠️");
+        return;
+      }
+
+      // Convert to JSON
+      const jsonContent = JSON.stringify(logs, null, 2);
+
+      // Create and download JSON file
+      const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `mood_logs_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showSuccess(langStrings[lang].exportJsonBtn + " successful!");
+    };
+
+    // --- Logout ---
+    document.getElementById('logoutBtn').onclick = function() {
+      // Clear authentication token
+      localStorage.removeItem('authToken');
+
+      // Clear Chatbase-related data
+      try {
+        // Remove Chatbase-specific localStorage keys (adjust if specific keys are known)
+        for (let key in localStorage) {
+          if (key.includes('chatbase') || key.includes('ajkXdReu-ipN4ySKdHoI2')) {
+            localStorage.removeItem(key);
+          }
+        }
+        // Clear sessionStorage as a precaution
+        sessionStorage.clear();
+
+        // Remove and reload Chatbase script to reset the widget
+        const chatbaseScript = document.getElementById('ajkXdReu-ipN4ySKdHoI2');
+        if (chatbaseScript) {
+          chatbaseScript.remove();
+        }
+        // Reset window.chatbase to ensure fresh initialization
+        window.chatbase = null;
+
+        // Optionally notify Chatbase server to clear session (if API exists)
+        // Note: Chatbase doesn't provide a public reset API in the embed script,
+        // so we rely on client-side cleanup
+      } catch (error) {
+        console.warn('Error clearing Chatbase data:', error.message);
+      }
+
+      showSuccess(langStrings[lang].successLogout);
+      setTimeout(() => window.location.href = 'login.html', 1000);
+    };
+
+    // --- Keyboard Shortcuts ---
+    document.addEventListener('keydown', (e) => {
+      if (e.shiftKey && e.key.toLowerCase() === 'd') {
+        themeToggle.click();
+      }
+      if (e.shiftKey && e.key.toLowerCase() === 'l') {
+        document.getElementById('logoutBtn').click();
+      }
+    });
+
+    // --- Load Announcements ---
+    async function loadAnnouncements() {
+      try {
+        const response = await fetch('/announcements/latest/?limit=1', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const announcements = await response.json();
+        if (Array.isArray(announcements) && announcements.length > 0 && announcements[0].id && announcements[0].title && announcements[0].message) {
+          const latest = announcements[0];
+          const announcementBox = document.getElementById('announcementBox');
+          const announcementContent = document.getElementById('announcementContent');
+          
+          // Check if user has already seen this announcement
+          const lastSeenId = localStorage.getItem('lastSeenAnnouncementId');
+          if (lastSeenId !== latest.id.toString()) {
+            announcementContent.innerHTML = `
+              <strong>${latest.title}</strong><br>
+              ${latest.message}
+            `;
+            announcementBox.style.display = 'block';
+            
+            // Mark as seen when closed
+            document.getElementById('closeAnnouncement').onclick = () => {
+              announcementBox.style.display = 'none';
+              localStorage.setItem('lastSeenAnnouncementId', latest.id.toString());
+            };
+          }
+        } else {
+          console.warn('No valid announcements received');
+        }
+      } catch (error) {
+        console.warn('Failed to load announcements:', error.message);
+        // Silently fail without showing snackbar to avoid user disruption
+        // showSnackbar("Unable to load announcements", "#e53935", "⚠️");
+      }
+    }
+
+    // --- Initialize ---
+    setLang(lang);
+    langSelector.onchange = () => setLang(langSelector.value);
+    checkAuth();
+    loadAnnouncements();
+  </script>
+</body>
+</html>

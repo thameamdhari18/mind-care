@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book Session</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --danger: #e53935;
+      --danger-dark: #ab000d;
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      transition: background 0.4s;
+    }
+    .container {
+      background: var(--surface);
+      max-width: 430px;
+      width: 95vw;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      position: relative;
+      z-index: 2;
+      animation: fadein 0.7s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    .container:hover { box-shadow: 0 16px 44px rgba(33,150,243,0.14), 0 6px 18px rgba(0,0,0,0.13);}
+    .theme-toggle-wrapper {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      width: 100%;
+      margin-bottom: 0.8rem;
+    }
+    .theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.38rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      color: var(--primary-dark);
+      outline: none;
+      margin-left: 0.5rem;
+    }
+    .theme-toggle:focus { color: #ffda47; }
+    h2 {
+      font-weight: 700;
+      font-size: 2.1rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+      color: var(--primary-dark);
+      letter-spacing: 0.03em;
+    }
+    label {
+      display: block;
+      margin-top: 1.1rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    select, input[type="date"], input[type="time"] {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-top: 0.5rem;
+      border-radius: 10px;
+      border: 2px solid #e3e8ee;
+      background: #f8fbff;
+      font-size: 1rem;
+      font-family: inherit;
+      box-shadow: 0 2px 6px #f5faff;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      color: var(--text);
+    }
+    [data-theme="dark"] select,
+    [data-theme="dark"] input[type="date"],
+    [data-theme="dark"] input[type="time"] {
+      background: #232946;
+      color: #e8eaf6;
+      border-color: #314170;
+      box-shadow: 0 2px 16px #232946;
+    }
+    select:focus, input[type="date"]:focus, input[type="time"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(33,150,243,0.22);
+    }
+    button {
+      margin-top: 2rem;
+      padding: 13px 0;
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 8px #e3e8ee;
+      transition: background 0.22s, transform 0.12s;
+      will-change: transform;
+    }
+    button:disabled {
+      opacity: 0.7;
+      background: #a6c8f7;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled), button:focus:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .msg {
+      text-align: center;
+      margin-top: 1.3rem;
+      font-size: 1.06rem;
+      min-height: 1.5em;
+      transition: color 0.2s;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .snackbar {
+      visibility: hidden;
+      min-width: 200px;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 13px 18px;
+      position: fixed;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-size: 1.06rem;
+      opacity: 0;
+      transition: opacity 0.4s, visibility 0.4s;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .snackbar.show {
+      visibility: visible;
+      opacity: 0.96;
+      animation: snackbar-pop 0.5s cubic-bezier(.42,1.2,.68,1.1);
+    }
+    @keyframes snackbar-pop {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.95);}
+      60% { transform: translateX(-50%) scale(1.07);}
+      100% { opacity: 1; transform: translateX(-50%) scale(1);}
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1.2rem 0.1rem 1.2rem;}
+      h2 { font-size: 1.29rem;}
+      .theme-toggle-wrapper { margin-bottom: 0.3rem;}
+    }
+    @media (max-width: 400px) {
+      .container { border-radius: 0; box-shadow: none; }
+      form { padding: 0 0.2rem; }
+    }
+    button:focus, .theme-toggle:focus, input:focus, select:focus {
+      outline: 2px solid var(--primary-dark);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Book counseling session">
+    <div class="theme-toggle-wrapper">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+    </div>
+    <h2>Book a Counseling Session</h2>
+    <form id="sessionForm" autocomplete="off">
+      <input type="hidden" id="userId" value="1" />
+      <label for="date">Select Date</label>
+      <input type="date" id="date" required />
+
+      <label for="time">Select Time</label>
+      <input type="time" id="time" required />
+
+      <label for="counselor">Choose Counselor</label>
+      <select id="counselor" required>
+        <option value="" disabled selected>Loading counselors...</option>
+      </select>
+
+      <button type="submit" id="bookBtn">Book Session</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+  <div id="snackbar" class="snackbar" role="status" aria-live="polite"></div>
+  <script>
+    // --- THEME TOGGLE ---
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // --- Snackbar ---
+    const snackbar = document.getElementById('snackbar');
+    function showSnackbar(msg, color="#222", icon="") {
+      snackbar.innerHTML = icon ? `<span>${icon}</span> ${msg}` : msg;
+      snackbar.style.background = color;
+      snackbar.className = "snackbar show";
+      setTimeout(() => { snackbar.className = "snackbar"; }, 2200);
+    }
+    function showSuccess(msg) { showSnackbar(msg, "#2196f3", "✅"); }
+    function showError(msg) { showSnackbar(msg, "#e53935", "❌"); }
+    function showInfo(msg) { showSnackbar(msg, "#1976d2", "ℹ️"); }
+
+    // --- Fetch counselors and populate dropdown
+    async function loadCounselors() {
+      const select = document.getElementById('counselor');
+      select.innerHTML = `<option value="" disabled selected>Loading counselors...</option>`;
+      try {
+        const response = await fetch('http://127.0.0.1:8000/counselors/');
+        if (!response.ok) throw new Error("Failed to load counselors.");
+        const counselors = await response.json();
+        if (!counselors.length) {
+          select.innerHTML = `<option value="" disabled selected>No counselors available</option>`;
+          return;
+        }
+        select.innerHTML = '<option value="" disabled selected>Select a counselor</option>';
+        counselors.forEach(c => {
+          select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+      } catch (e) {
+        select.innerHTML = `<option value="" disabled selected>Error loading counselors</option>`;
+      }
+    }
+    loadCounselors();
+
+    // --- Book Session Logic
+    document.getElementById('sessionForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const userId = document.getElementById('userId').value;
+      const counselorId = document.getElementById('counselor').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const msg = document.getElementById('msg');
+      const bookBtn = document.getElementById('bookBtn');
+
+      msg.textContent = '';
+      msg.style.color = "#222";
+      bookBtn.disabled = true;
+
+      if (!userId || !counselorId || !date || !time) {
+        showError('Please fill in all required fields.');
+        msg.style.color = "#e53935";
+        msg.textContent = 'Please fill in all required fields.';
+        bookBtn.disabled = false;
+        return;
+      }
+
+      const scheduledAt = `${date}T${time}:00`;
+
+      const payload = {
+        user_id: parseInt(userId),
+        counselor_id: parseInt(counselorId),
+        scheduled_at: scheduledAt,
+        status: "pending"
+      };
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/sessions/book/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          let error = "Session booking failed.";
+          try {
+            const errJson = await response.json();
+            if (errJson && errJson.detail) error = errJson.detail;
+          } catch { /* ignore */ }
+          showError(error);
+          msg.style.color = "#e53935";
+          msg.textContent = `Booking failed: ${error}`;
+          bookBtn.disabled = false;
+          return;
+        }
+
+        showSuccess('Session booked successfully!');
+        msg.style.color = "#2196f3";
+        msg.textContent = 'Session booked successfully!';
+        this.reset();
+
+      } catch (err) {
+        showError('Booking failed: ' + err.message);
+        msg.style.color = "#e53935";
+        msg.textContent = `Booking failed: ${err.message}`;
+      }
+      bookBtn.disabled = false;
+    });
+
+    // --- Autofocus and Enter submits
+    setTimeout(() => document.getElementById('date').focus(), 200);
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Enter' && document.activeElement.tagName !== "TEXTAREA") {
+        if (document.activeElement.closest('form')) document.activeElement.closest('form').requestSubmit();
+      }
+    });
+  </script>
+</body>
+</html>

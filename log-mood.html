@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Log Your Mood</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* (your original CSS unchanged) */
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --danger: #e53935;
+      --danger-dark: #ab000d;
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+      --log-gradient: linear-gradient(90deg, #f0f6ff 70%, #e0f3fa 100%);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+      --log-gradient: linear-gradient(90deg, #253250 80%, #2d4163 100%);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      transition: background 0.4s;
+    }
+    .container {
+      background: var(--surface);
+      max-width: 430px;
+      width: 95vw;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      position: relative;
+      z-index: 2;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    .container:hover { box-shadow: 0 16px 48px var(--primary, #2196f3, 0.16), 0 6px 18px rgba(0,0,0,0.13);}
+    .theme-toggle {
+      position: absolute;
+      top: 19px;
+      right: 22px;
+      background: none;
+      border: none;
+      font-size: 1.38rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      color: var(--primary-dark);
+      outline: none;
+    }
+    .theme-toggle:focus { color: #ffda47; }
+    .welcome {
+      font-size: 1.22rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.8rem;
+      color: var(--primary-dark);
+      text-align: center;
+      user-select: none;
+    }
+    h2 {
+      font-weight: 700;
+      font-size: 2.13rem;
+      margin-bottom: 1.1rem;
+      text-align: center;
+      color: var(--primary-dark);
+      letter-spacing: 0.03em;
+      margin-top: 0.1rem;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 0 0.1rem 0;
+      margin-bottom: 0.7rem;
+      gap: 0.2em;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.23em;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+    label {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+    input[type="date"],
+    select,
+    textarea,
+    input[type="range"] {
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 2px solid #e3e8ee;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      width: 100%;
+      font-family: inherit;
+      background: #f8fbff;
+      margin-top: 0.1rem;
+      box-shadow: 0 2px 6px #f5faff;
+      color: var(--text);
+    }
+    [data-theme="dark"] input[type="date"],
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] input[type="range"] {
+      background: #232946;
+      color: #e8eaf6;
+      border-color: #314170;
+      box-shadow: 0 2px 16px #232946;
+    }
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus,
+    input[type="range"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(33,150,243,0.22);
+    }
+    textarea { resize: vertical; min-height: 110px; }
+    button {
+      background: var(--primary);
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1.09rem;
+      padding: 13px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.22s, transform 0.12s;
+      margin-top: 1rem;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 8px #e3e8ee;
+      will-change: transform;
+    }
+    button:hover, button:focus { background: var(--primary-dark); transform: translateY(-2px) scale(1.04);}
+    .mood-preview {
+      margin-top: -0.7rem;
+      font-size: 2.7rem;
+      text-align: center;
+      user-select: none;
+      min-height: 2.5em;
+      transition: transform 0.3s cubic-bezier(.4,1.4,.7,1.1), filter 0.4s;
+      filter: drop-shadow(0 4px 10px #e3e8ee);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 3.2em;
+      position: relative;
+    }
+    .mood-preview.animate {
+      animation: emoji-bounce 0.55s cubic-bezier(.58,1.4,.7,1.1);
+    }
+    @keyframes emoji-bounce {
+      0% { transform: scale(1);}
+      30% { transform: scale(1.26) rotate(-4deg);}
+      60% { transform: scale(0.87) rotate(7deg);}
+      100% { transform: scale(1);}
+    }
+    .confetti {
+      pointer-events: none;
+      position: absolute;
+      left: 50%; top: 15%;
+      width: 0; height: 0;
+      z-index: 99;
+      overflow: visible;
+    }
+    .logs {
+      margin-top: 2.2rem;
+      max-height: 250px;
+      overflow-y: auto;
+      border-top: 1.5px solid #f1f4f8;
+      padding-top: 1.2rem;
+    }
+    .logs h3 {
+      margin-top: 0;
+      font-size: 1.14rem;
+      font-weight: 600;
+      color: #227;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.01em;
+    }
+    .log-item {
+      background: var(--log-gradient);
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      margin-bottom: 1.05rem;
+      box-shadow: 0 1.5px 6px #e3e8ee;
+      font-size: 1.01rem;
+      color: var(--text);
+      transition: box-shadow 0.17s, transform 0.17s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.13em;
+      animation: fadein 0.7s;
+    }
+    .log-item:hover {
+      box-shadow: 0 4px 14px #d0e2fa;
+      transform: translateY(-2px) scale(1.01);
+    }
+    .log-date {
+      font-weight: 650;
+      font-size: 0.99rem;
+      margin-bottom: 0.18rem;
+      color: var(--primary-dark);
+    }
+    .log-mood {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.18em;
+    }
+    .log-notes {
+      font-style: italic;
+      color: #6b7a8f;
+      font-size: 0.98rem;
+    }
+    .clear-btn {
+      background: var(--danger);
+      margin-top: 1rem;
+      font-weight: 680;
+      transition: background 0.2s;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 2px 8px #e3e8ee;
+    }
+    .clear-btn:hover, .clear-btn:focus { background: var(--danger-dark);}
+    /* Snackbar for feedback */
+    .snackbar {
+      visibility: hidden;
+      min-width: 200px;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 13px 18px;
+      position: fixed;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%);
+      z-index: 100;
+      font-size: 1.06rem;
+      opacity: 0;
+      transition: opacity 0.4s, visibility 0.4s;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .snackbar.show {
+      visibility: visible;
+      opacity: 0.96;
+      animation: snackbar-pop 0.5s cubic-bezier(.42,1.2,.68,1.1);
+    }
+    @keyframes snackbar-pop {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.95);}
+      60% { transform: translateX(-50%) scale(1.07);}
+      100% { opacity: 1; transform: translateX(-50%) scale(1);}
+    }
+    /* Loader spinner */
+    .spinner {
+      border: 3px solid #e3e8ee;
+      border-top: 3px solid var(--primary-dark);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      animation: spin 0.7s linear infinite;
+      margin: 2.5rem auto 1.7rem;
+      display: block;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    /* Responsive styles */
+    @media (max-width: 600px) {
+      .container { padding: 1.2rem 0.1rem 1.2rem;}
+      .logs { max-height: 145px;}
+      .mood-preview { font-size: 2.1rem;}
+      h2 { font-size: 1.29rem;}
+    }
+    @media (max-width: 400px) {
+      .container { border-radius: 0; box-shadow: none; }
+      form, .logs { padding: 0 0.2rem; }
+    }
+    /* Focus ring for accessibility */
+    button:focus, .theme-toggle:focus, input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--primary-dark);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Mood logging application">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+    <div class="welcome" id="welcome"></div>
+    <h2>Log Your Mood</h2>
+    <div class="stats" id="stats"></div>
+    <form id="moodForm" aria-describedby="formInstructions" autocomplete="off">
+      <p id="formInstructions" style="font-size:0.9rem; color:#555; text-align:center; margin-bottom:1.1rem;">
+        Choose your mood, add notes, and save your feelings.
+      </p>
+      <label for="date">Date</label>
+      <input type="date" id="date" required aria-required="true" aria-describedby="dateHelp" />
+      <small id="dateHelp" style="color:#777; font-size:0.8rem;">Select the date for your mood.</small>
+      <label for="mood">Mood</label>
+      <select id="mood" required aria-required="true" aria-describedby="moodHelp" aria-live="polite">
+        <option value="" disabled selected>Select your mood</option>
+        <option value="happy">😊 Happy</option>
+        <option value="sad">😢 Sad</option>
+        <option value="anxious">😰 Anxious</option>
+        <option value="angry">😠 Angry</option>
+        <option value="neutral">😐 Neutral</option>
+        <option value="custom">🎚️ Choose Yours</option>
+      </select>
+      <div id="customSliderWrapper" style="display:none; margin-top: 1rem;">
+        <label for="customMoodRange" style="font-weight:600;">Adjust your mood</label>
+        <input type="range" id="customMoodRange" min="1" max="5" value="3" />
+      </div>
+      <div class="mood-preview" aria-live="polite" aria-atomic="true" id="moodPreview" title="Selected mood preview"></div>
+      <div class="confetti" id="confetti"></div>
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" placeholder="Write anything about your day..." aria-label="Additional notes"></textarea>
+      <!-- Summarizer Feature Start -->
+      <button type="button" id="summarizeBtn" style="background:#74ebd5;color:#222;margin-top:10px;">Summarize</button>
+      <div id="summaryResult" style="margin-top:0.7em; font-size:0.98em; color:#1769aa;"></div>
+      <!-- Summarizer Feature End -->
+      <button type="submit">Save Mood</button>
+    </form>
+    <section class="logs" aria-label="Recent mood logs">
+      <h3>Recent Logs</h3>
+      <div id="logsList" role="list" tabindex="0"></div>
+      <button class="clear-btn" id="clearLogsBtn" aria-label="Clear all mood logs" style="display:none;">Clear All Logs</button>
+    </section>
+  </div>
+  <div id="snackbar" class="snackbar" role="status" aria-live="polite"></div>
+  <script>
+    // (your original JS code unchanged)
+    // --- DATA & UTILS ---
+    const moodForm = document.getElementById('moodForm');
+    const moodSelect = document.getElementById('mood');
+    const moodPreview = document.getElementById('moodPreview');
+    const logsList = document.getElementById('logsList');
+    const clearLogsBtn = document.getElementById('clearLogsBtn');
+    const dateInput = document.getElementById('date');
+    const customSlider = document.getElementById('customMoodRange');
+    const customSliderWrapper = document.getElementById('customSliderWrapper');
+    const snackbar = document.getElementById('snackbar');
+    const statsDiv = document.getElementById('stats');
+    const themeToggle = document.getElementById('themeToggle');
+    const confettiDiv = document.getElementById('confetti');
+    const welcomeDiv = document.getElementById('welcome');
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.value = todayStr;
+    let lastSavedMood = null; // for stats
+    let logsCache = [];
+
+    // Mood names & emojis
+    const moodEmojiMap = {
+      happy: "😊 Happy",
+      sad: "😢 Sad",
+      anxious: "😰 Anxious",
+      angry: "😠 Angry",
+      neutral: "😐 Neutral"
+    };
+    const moodEmojiOnly = { happy: "😊", sad: "😢", anxious: "😰", angry: "😠", neutral: "😐" };
+    const customMoodMap = {
+      1: "😭 Very Sad",
+      2: "😟 Sad",
+      3: "😐 Neutral",
+      4: "🙂 Good",
+      5: "😁 Great"
+    };
+    const customMoodEmojiOnly = { 1: "😭", 2: "😟", 3: "😐", 4: "🙂", 5: "😁" };
+
+    // --- THEME TOGGLE ---
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    // Persist theme
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // --- WELCOME GREETING ---
+    function showGreeting() {
+      const hours = new Date().getHours();
+      let greeting = "Welcome";
+      if (hours >= 5 && hours < 12) greeting = "Good morning";
+      else if (hours >= 12 && hours < 18) greeting = "Good afternoon";
+      else greeting = "Good evening";
+      welcomeDiv.textContent = `${greeting} 👋`;
+    }
+    showGreeting();
+
+    // --- MOOD PREVIEW INTERACTION ---
+    moodSelect.addEventListener('change', () => {
+      const mood = moodSelect.value;
+      moodPreview.classList.remove('animate');
+      if (mood === 'custom') {
+        customSliderWrapper.style.display = 'block';
+        moodPreview.textContent = customMoodMap[customSlider.value];
+        setTimeout(() => moodPreview.classList.add('animate'), 60);
+      } else {
+        customSliderWrapper.style.display = 'none';
+        moodPreview.textContent = moodEmojiMap[mood] || '';
+        setTimeout(() => moodPreview.classList.add('animate'), 60);
+      }
+    });
+    customSlider.addEventListener('input', () => {
+      moodPreview.textContent = customMoodMap[customSlider.value];
+      moodPreview.classList.remove('animate');
+      setTimeout(() => moodPreview.classList.add('animate'), 30);
+    });
+
+    // --- CONFETTI ---
+    function showConfetti() {
+      confettiDiv.innerHTML = '';
+      for (let i = 0; i < 22; i++) {
+        let c = document.createElement('span');
+        c.textContent = ["🎉","✨","🥳","💖","🎊"][Math.floor(Math.random()*5)];
+        c.style.position = "absolute";
+        c.style.left = Math.random()*60-30 + "px";
+        c.style.top = Math.random()*30-15 + "px";
+        c.style.fontSize = (Math.random()*1.1+1.1) + "rem";
+        c.style.transform = `rotate(${Math.random()*120-60}deg)`;
+        c.style.opacity = 0.85;
+        c.style.transition = "all 1.2s cubic-bezier(.41,1.52,.68,1)";
+        confettiDiv.appendChild(c);
+        setTimeout(() => {
+          c.style.top = (Math.random()*120+45) + "px";
+          c.style.opacity = 0;
+        }, 60);
+        setTimeout(() => confettiDiv.removeChild(c), 1200);
+      }
+    }
+
+    // --- SNACKBAR ---
+    function showSnackbar(msg, color="#222", icon="") {
+      snackbar.innerHTML = icon ? `<span>${icon}</span> ${msg}` : msg;
+      snackbar.style.background = color;
+      snackbar.className = "snackbar show";
+      setTimeout(() => { snackbar.className = "snackbar"; }, 2300);
+    }
+    function showSuccess(msg) { showSnackbar(msg, "#2196f3", "✅"); }
+    function showError(msg) { showSnackbar(msg, "#e53935", "❌"); }
+    function showInfo(msg) { showSnackbar(msg, "#1976d2", "ℹ️"); }
+
+    function showSpinner() {
+      logsList.innerHTML = '<span class="spinner"></span>';
+    }
+
+    // --- FETCH & DISPLAY LOGS with Stats ---
+    async function loadLogs() {
+      showSpinner();
+      clearLogsBtn.style.display = 'none';
+      statsDiv.innerHTML = '';
+      logsCache = [];
+      try {
+        const response = await fetch('http://127.0.0.1:8000/moods/summary/');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        const logs = data.recent;
+        logsCache = logs;
+        logsList.innerHTML = '';
+        if (!logs || logs.length === 0) {
+          logsList.innerHTML = '<p style="color:#555; font-style:italic;">No mood logs yet.</p>';
+          statsDiv.innerHTML = '';
+          return;
+        }
+        // --- Stats: average mood, streak, last mood ---
+        const moodVals = logs.map(log => {
+          if (log.mood && log.mood.startsWith('custom-')) return +log.mood.split('-')[1];
+          if (log.mood === "happy") return 5;
+          if (log.mood === "neutral") return 3;
+          if (log.mood === "sad" || log.mood === "anxious" || log.mood === "angry") return 2;
+          return 3;
+        });
+        const avgMood = Math.round(moodVals.reduce((a,b)=>a+b,0)/moodVals.length);
+        let avgEmoji = customMoodEmojiOnly[avgMood] || "😐";
+        let streak = 1;
+        for (let i = 1; i < moodVals.length; ++i)
+          if (moodVals[i] === moodVals[0]) streak++; else break;
+        let streakEmoji = customMoodEmojiOnly[moodVals[0]] || "🙂";
+        statsDiv.innerHTML = `
+          <span title="Mood streak">🔥 ${streak}x <span style="font-size:1.1em;">${streakEmoji}</span></span>
+          <span title="Recent moods">🕑 ${logs.map(log=>{
+            if(log.mood&&log.mood.startsWith('custom-')) return customMoodEmojiOnly[log.mood.split('-')[1]];
+            return moodEmojiOnly[log.mood]||"❔";
+          }).join(' ')}</span>
+          <span title="Average mood">Avg: ${avgEmoji}</span>
+        `;
+        clearLogsBtn.style.display = 'block';
+        logs.forEach(log => {
+          const div = document.createElement('div');
+          div.className = 'log-item';
+          let moodDisplay = moodEmojiMap[log.mood] || log.mood;
+          let emoji = "";
+          if (log.mood && log.mood.startsWith('custom-')) {
+            const val = log.mood.split('-')[1];
+            emoji = customMoodEmojiOnly[val] || "";
+            moodDisplay = customMoodMap[val] || log.mood;
+          } else emoji = moodEmojiOnly[log.mood]||"";
+          const dateStr = new Date(log.created_at || log.date).toLocaleString();
+          div.innerHTML = `<div class="log-date">${dateStr}</div>
+            <div class="log-mood">${emoji} ${moodDisplay}</div>
+            <div class="log-notes">${log.note ? log.note.replace(/\n/g, '<br>') : '<em>No notes</em>'}</div>`;
+          logsList.appendChild(div);
+        });
+      } catch (err) {
+        logsList.innerHTML = `<p style="color:red;">Unable to load mood logs.<br>${err.message}</p>`;
+      }
+    }
+
+    // --- SAVE MOOD (POST) ---
+    moodForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const date = dateInput.value;
+      const mood = moodSelect.value;
+      const notes = document.getElementById('notes').value.trim();
+      const user_id = 1; // <--- CHANGE THIS TO THE LOGGED-IN USER'S ID IF YOU HAVE AUTH
+      if (!date || !mood) {
+        showError('Please complete all required fields.');
+        return;
+      }
+      let moodToSave = mood;
+      if (mood === 'custom') moodToSave = `custom-${customSlider.value}`;
+      try {
+        const response = await fetch('http://127.0.0.1:8000/moods/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id, date, mood: moodToSave, note: notes })
+        });
+        if (!response.ok) throw new Error(`Failed to save mood: ${response.status}`);
+        showSuccess('Mood logged successfully! 🎉');
+        showConfetti();
+        moodForm.reset();
+        dateInput.value = todayStr;
+        moodPreview.textContent = '';
+        customSliderWrapper.style.display = 'none';
+        setTimeout(loadLogs, 700);
+      } catch (err) {
+        showError('Error saving mood: ' + err.message);
+      }
+    });
+
+    // --- CLEAR LOGS (if supported) ---
+    clearLogsBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to clear all mood logs?')) {
+        try {
+          // If you have a backend API for this, call it here:
+          // await fetch('http://127.0.0.1:8000/moods/', { method: 'DELETE' });
+          showInfo('Clear all logs not implemented in backend!');
+          // loadLogs();
+        } catch (err) {
+          showError('Error clearing logs: ' + err.message);
+        }
+      }
+    });
+
+    // --- Accessibility: keyboard shortcuts ---
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'KeyC') {
+        clearLogsBtn.focus();
+        clearLogsBtn.click();
+      }
+      if (e.code === 'Enter' && document.activeElement.tagName !== "TEXTAREA") {
+        if (document.activeElement.closest('form')) document.activeElement.closest('form').requestSubmit();
+      }
+    });
+
+    // --- Focus input on load ---
+    setTimeout(() => dateInput.focus(), 200);
+
+    // --- INITIAL LOAD ---
+    loadLogs();
+
+    // --- SUMMARIZER FEATURE ---
+    document.getElementById('summarizeBtn').onclick = async function() {
+      const mood = document.getElementById('mood');
+      const notes = document.getElementById('notes').value.trim();
+      // Get mood text for summarization
+      let moodText = "";
+      if (mood.value === "custom") {
+        const customSlider = document.getElementById('customMoodRange');
+        const customMoodMap = {
+          1: "😭 Very Sad",
+          2: "😟 Sad",
+          3: "😐 Neutral",
+          4: "🙂 Good",
+          5: "😁 Great"
+        };
+        moodText = customMoodMap[customSlider.value] || "Custom Mood";
+      } else {
+        const moodEmojiMap = {
+          happy: "😊 Happy",
+          sad: "😢 Sad",
+          anxious: "😰 Anxious",
+          angry: "😠 Angry",
+          neutral: "😐 Neutral"
+        };
+        moodText = moodEmojiMap[mood.value] || "";
+      }
+      const text = (moodText + ". " + notes).trim();
+      const summaryDiv = document.getElementById('summaryResult');
+      if (!text || text === ".") {
+        summaryDiv.textContent = "Please select a mood or write something to summarize.";
+        return;
+      }
+      summaryDiv.textContent = "Summarizing...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/summarize/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        summaryDiv.innerHTML = `
+          <b>Summary:</b> ${data.summary}<br>
+          <b>Mood:</b> ${data.mood}<br>
+          <b>Sentiment Score:</b> ${data.sentiment_score}
+        `;
+      } catch (e) {
+        summaryDiv.textContent = "Could not summarize. Please try again.";
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Mood Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --secondary: #74ebd5;
+      --accent: #ACB6E5;
+      --danger: #e53935;
+      --danger-dark: #ab000d;
+      --bg-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+      --log-gradient: linear-gradient(90deg, #f0f6ff 70%, #e0f3fa 100%);
+    }
+    [data-theme="dark"] {
+      --surface: #191c20;
+      --text: #e8eaf6;
+      --bg-gradient: linear-gradient(135deg, #232946 0%, #2b3a67 100%);
+      --shadow: 0 8px 36px rgba(37, 60, 89, 0.24), 0 4px 16px rgba(0,0,0,0.28);
+      --log-gradient: linear-gradient(90deg, #253250 80%, #2d4163 100%);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      transition: background 0.4s;
+    }
+    .container {
+      background: var(--surface);
+      max-width: 800px;
+      width: 97vw;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      position: relative;
+      z-index: 2;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    .theme-toggle {
+      position: absolute;
+      top: 19px;
+      right: 22px;
+      background: none;
+      border: none;
+      font-size: 1.38rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      color: var(--primary-dark);
+      outline: none;
+    }
+    .theme-toggle:focus { color: #ffda47; }
+    h2 {
+      font-weight: 700;
+      font-size: 2.13rem;
+      margin-bottom: 1.1rem;
+      text-align: center;
+      color: var(--primary-dark);
+      letter-spacing: 0.03em;
+      margin-top: 0.1rem;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar select, .filter-bar input {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ececec;
+      font-size: 1rem;
+    }
+    .filter-bar button {
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .filter-bar button:hover {
+      background: #1769aa;
+      color: #fff;
+    }
+    .filter-bar button.reset-btn {
+      background: #ffe0b2;
+      color: #2196f3;
+      border: 1px solid #b3e0fc;
+    }
+    .filter-bar button.reset-btn:hover {
+      background: #fafafa;
+      color: #1769aa;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 4px rgba(0,0,0,0.04);
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #f6e9dd;
+      text-align: left;
+    }
+    th {
+      background: #f0f6ff;
+      color: #2196f3;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .mood-emoji {
+      font-size: 1.3em;
+      margin-right: 0.5em;
+    }
+    .note-cell {
+      color: #6d4c41;
+      font-size: 0.97em;
+    }
+    .back-button {
+      margin-top: 2rem;
+      padding: 12px 32px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 8px #e3e8ee;
+      transition: background 0.2s;
+    }
+    .back-button:hover {
+      background: #1769aa;
+    }
+    #loading, #error, #empty {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #888;
+      font-size: 1.1em;
+    }
+    #empty {
+      color: #bfa16c;
+      font-size: 1.2em;
+      font-style: italic;
+    }
+    /* Dark mode table fix */
+    [data-theme="dark"] table {
+      background: #232946;
+    }
+    [data-theme="dark"] th {
+      background: #253250;
+      color: #74ebd5;
+    }
+    [data-theme="dark"] td {
+      background: #232946;
+      color: #e8eaf6;
+    }
+    [data-theme="dark"] .note-cell {
+      color: #b2c2de;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.2rem 0.3rem 2rem 0.3rem;
+      }
+      th, td {
+        font-size: 0.97em;
+        padding: 10px 6px;
+      }
+      h2 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">🌙</button>
+    <h2>User Mood Logs</h2>
+    <div class="filter-bar">
+      <select id="userFilter">
+        <option value="">All Users</option>
+      </select>
+      <select id="moodFilter">
+        <option value="">All Moods</option>
+        <option value="😊">😊 Happy</option>
+        <option value="😢">😢 Sad</option>
+        <option value="😐">😐 Neutral</option>
+        <option value="😠">😠 Angry</option>
+        <option value="😰">😰 Anxious</option>
+        <!-- Add more moods as needed -->
+      </select>
+      <input type="date" id="dateFilter" />
+      <button onclick="applyFilters()">Filter</button>
+      <button class="reset-btn" onclick="clearFilters()">Reset</button>
+    </div>
+    <div id="loading">Loading mood logs...</div>
+    <div id="error" style="display:none"></div>
+    <div id="empty" style="display:none"></div>
+    <table id="mood-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>User Name</th>
+          <th>Mood</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="mood-tbody">
+        <!-- Mood logs will go here -->
+      </tbody>
+    </table>
+    <button class="back-button" onclick="location.href='dashboard_counselor.html'">Back to Dashboard</button>
+  </div>
+  <script>
+    // THEME TOGGLE
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === "dark" ? "🌞" : "🌙";
+      localStorage.setItem('theme', theme);
+    }
+    themeToggle.onclick = () => {
+      const curr = document.documentElement.getAttribute('data-theme');
+      setTheme(curr === "dark" ? "light" : "dark");
+    };
+    (() => {
+      let theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light");
+      setTheme(theme);
+    })();
+
+    // DATA & RENDER
+    const API_URL = "http://localhost:8000";
+    let userMap = {};
+    let moodLogs = [];
+
+    function getMoodEmoji(mood) {
+      const map = {
+        "Happy": "😊", "happy": "😊",
+        "Sad": "😢", "sad": "😢",
+        "Neutral": "😐", "neutral": "😐",
+        "Angry": "😠", "angry": "😠",
+        "Anxious": "😰", "anxious": "😰"
+      };
+      if (/[\u{1F600}-\u{1F64F}]/u.test(mood)) return mood;
+      return map[mood] || mood;
+    }
+
+    async function fetchUserMap() {
+      const resp = await fetch(`${API_URL}/users/`);
+      if (!resp.ok) throw new Error('Failed to fetch users');
+      const users = await resp.json();
+      userMap = {};
+      users.forEach(user => userMap[user.id] = user.name);
+      // Populate filter dropdown
+      const userFilter = document.getElementById('userFilter');
+      userFilter.innerHTML = '<option value="">All Users</option>';
+      users.forEach(user => {
+        const opt = document.createElement('option');
+        opt.value = user.id;
+        opt.textContent = user.name;
+        userFilter.appendChild(opt);
+      });
+    }
+
+    async function fetchMoodLogs() {
+      const resp = await fetch(`${API_URL}/moods/`);
+      if (!resp.ok) throw new Error('Failed to fetch moods');
+      moodLogs = await resp.json();
+    }
+
+    function formatDate(dateString) {
+      const d = new Date(dateString);
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function renderTable(filteredMoods) {
+      const tbody = document.getElementById('mood-tbody');
+      tbody.innerHTML = '';
+
+      if (filteredMoods.length === 0) {
+        document.getElementById('mood-table').style.display = 'none';
+        document.getElementById('empty').style.display = '';
+        document.getElementById('empty').textContent = "No mood logs match your filter.";
+        return;
+      } else {
+        document.getElementById('empty').style.display = 'none';
+      }
+
+      filteredMoods.forEach(mood => {
+        const tr = document.createElement('tr');
+        const emoji = getMoodEmoji(mood.mood);
+        tr.innerHTML = `
+          <td>${formatDate(mood.created_at)}</td>
+          <td>${userMap[mood.user_id] ? userMap[mood.user_id] : 'Unknown'}</td>
+          <td><span class="mood-emoji">${emoji}</span>${mood.mood}</td>
+          <td class="note-cell">${mood.note ? mood.note : ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('mood-table').style.display = '';
+    }
+
+    function applyFilters() {
+      const userId = document.getElementById('userFilter').value;
+      const moodVal = document.getElementById('moodFilter').value;
+      const dateVal = document.getElementById('dateFilter').value;
+
+      let filtered = moodLogs.slice();
+
+      if (userId) filtered = filtered.filter(m => String(m.user_id) === userId);
+      if (moodVal) filtered = filtered.filter(m => getMoodEmoji(m.mood) === moodVal || m.mood === moodVal);
+      if (dateVal) filtered = filtered.filter(m => (new Date(m.created_at)).toISOString().slice(0,10) === dateVal);
+
+      renderTable(filtered);
+    }
+
+    function clearFilters() {
+      document.getElementById('userFilter').value = '';
+      document.getElementById('moodFilter').value = '';
+      document.getElementById('dateFilter').value = '';
+      renderTable(moodLogs);
+    }
+
+    async function loadMoodTable() {
+      document.getElementById('loading').style.display = '';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('mood-table').style.display = 'none';
+      document.getElementById('empty').style.display = 'none';
+
+      try {
+        await fetchUserMap();
+        await fetchMoodLogs();
+        document.getElementById('loading').style.display = 'none';
+        renderTable(moodLogs);
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').innerText = e.message;
+        document.getElementById('error').style.display = '';
+      }
+    }
+
+    window.onload = loadMoodTable;
+  </script>
+</body>
+</html>

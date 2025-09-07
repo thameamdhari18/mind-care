@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Counselor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --primary-dark: #1769aa;
+      --bg-gradient: linear-gradient(135deg, #fff3e6 70%, #ffe0b2 100%);
+      --surface: #fff;
+      --text: #222;
+      --shadow: 0 8px 36px rgba(33, 150, 243, 0.13), 0 4px 16px rgba(0,0,0,0.11);
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 0;
+      transition: background 0.4s;
+    }
+    .container {
+      background: var(--surface);
+      max-width: 540px;
+      width: 97vw;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 2.2rem;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), background 0.4s;
+      position: relative;
+      z-index: 2;
+      animation: fadein 0.7s;
+    }
+    @keyframes fadein {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    h2 {
+      color: var(--primary-dark);
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 1px;
+      margin-bottom: 0.3em;
+    }
+    .welcome-msg {
+      text-align: center;
+      font-size: 1.13rem;
+      color: #555;
+      margin-bottom: 1.1em;
+      font-weight: 500;
+    }
+    .quick-stats {
+      background: #e3f1fd;
+      border-radius: 9px;
+      padding: 1.1em;
+      text-align: center;
+      color: #1769aa;
+      font-size: 1rem;
+      margin-bottom: 1.9em;
+      font-weight: 500;
+      box-shadow: 0 2px 8px #e3e8ee;
+      display: flex;
+      justify-content: space-around;
+      gap: 1.2em;
+      flex-wrap: wrap;
+    }
+    .quick-stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.32em;
+      font-size: 1.01em;
+    }
+    .dashboard-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25em;
+      margin-top: 1em;
+      margin-bottom: 1.5em;
+    }
+    .dashboard-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65em;
+      background: #2196f3;
+      color: white;
+      padding: 1em 1.2em;
+      border-radius: 8px;
+      font-size: 1.06rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #e3e8ee;
+      transition: background 0.17s, transform 0.12s;
+      outline: none;
+    }
+    .dashboard-btn svg {
+      width: 1.3em;
+      height: 1.3em;
+      vertical-align: middle;
+    }
+    .dashboard-btn:focus,
+    .dashboard-btn:hover {
+      background: #1769aa;
+      transform: translateY(-2px) scale(1.04);
+    }
+    .logout-btn {
+      background: #e53935;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      padding: 0.9em 2em;
+      border-radius: 7px;
+      font-size: 1rem;
+      display: block;
+      margin: 2.5em auto 0 auto;
+      cursor: pointer;
+      box-shadow: 0 1.5px 6px #e3e8ee;
+      transition: background 0.17s;
+    }
+    .logout-btn:hover,
+    .logout-btn:focus {
+      background: #ab000d;
+    }
+    .announcement-box {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+      color: white;
+      padding: 1em 1.2em;
+      border-radius: 12px;
+      margin: 1.1em 0 0.5em;
+      font-size: 1.04rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      animation: fadein 1s;
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      border: 2px solid #ff5252;
+    }
+    .announcement-box .icon {
+      font-size: 1.18em;
+      margin-right: 0.4em;
+    }
+    .close-announcement {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 0.9em;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-announcement:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1.2rem 0.1rem 1.2rem;}
+      .dashboard-btn { font-size: 0.98rem; }
+      .quick-stats { font-size: 0.93rem; }
+      h2 { font-size: 1.29rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Counselor Dashboard</h2>
+    <div class="welcome-msg" id="welcome-msg"></div>
+    <!-- Announcements/Notifications -->
+    <div class="announcement-box" id="announcementBox" style="display:none;">
+      <span class="icon">📢</span>
+      <div id="announcementContent"></div>
+      <button class="close-announcement" id="closeAnnouncement" title="Close announcement">✖️</button>
+    </div>
+    <div class="quick-stats" id="quickStats">
+      <span title="Upcoming Sessions">📅 <span id="sessionCount">-</span> Sessions</span>
+      <span title="Monitored Users">🧑‍🤝‍🧑 <span id="userCount">-</span> Users</span>
+      <span title="Latest Mood Logs">😊 <span id="moodCount">-</span> Moods</span>
+    </div>
+    <div class="dashboard-grid">
+      <button class="dashboard-btn" onclick="location.href='view-sessions.html'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="8" cy="21" r="2"/><circle cx="20" cy="21" r="2"/><path d="M2.5 6h19l-1.68 7.39A2 2 0 0 1 17.87 15H7.13a2 2 0 0 1-1.95-1.61l-1.85-8.24A1 1 0 0 1 4.31 4h1.09"/></svg>
+        View Scheduled Sessions
+      </button>
+      <button class="dashboard-btn" onclick="location.href='view-user-moods.html'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        View User Mood Logs
+      </button>
+      <!-- Removed "Log Your Mood" button here -->
+      <button class="dashboard-btn" onclick="location.href='profile.html'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a17.6 17.6 0 0 1 13 0"/></svg>
+        Profile & Settings
+      </button>
+      <button class="dashboard-btn" onclick="location.href='calendar.html'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/></svg>
+        Calendar & Reminders
+      </button>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+  <script>
+    // Welcome message
+    function showGreeting() {
+      const hours = new Date().getHours();
+      let greeting = "Welcome";
+      if (hours >= 5 && hours < 12) greeting = "Good morning";
+      else if (hours >= 12 && hours < 18) greeting = "Good afternoon";
+      else greeting = "Good evening";
+      document.getElementById('welcome-msg').textContent = `${greeting}, Counselor 👋`;
+    }
+    showGreeting();
+
+    // Demo quick stats (replace with API calls if backend supports)
+    document.getElementById('sessionCount').textContent = Math.floor(Math.random()*5+3); // 3-7 sessions
+    document.getElementById('userCount').textContent = Math.floor(Math.random()*8+10);   // 10-17 users
+    document.getElementById('moodCount').textContent = Math.floor(Math.random()*12+5);   // 5-16 moods
+
+    // Optionally, load real stats from backend if available:
+    // fetch('http://localhost:8000/dashboard-stats/').then(r=>r.json()).then(data=>{
+    //   document.getElementById('sessionCount').textContent = data.sessions;
+    //   document.getElementById('userCount').textContent = data.users;
+    //   document.getElementById('moodCount').textContent = data.moods;
+    // });
+
+    // --- Load Announcements ---
+    async function loadAnnouncements() {
+      try {
+        const response = await fetch('/announcements/latest/?limit=1');
+        if (response.ok) {
+          const announcements = await response.json();
+          if (announcements && announcements.length > 0) {
+            const latest = announcements[0];
+            const announcementBox = document.getElementById('announcementBox');
+            const announcementContent = document.getElementById('announcementContent');
+            
+            // Check if counselor has already seen this announcement
+            const lastSeenId = localStorage.getItem('lastSeenAnnouncementId');
+            if (lastSeenId !== latest.id.toString()) {
+              announcementContent.innerHTML = `
+                <strong>${latest.title}</strong><br>
+                ${latest.message}
+              `;
+              announcementBox.style.display = 'block';
+              
+              // Mark as seen when closed
+              document.getElementById('closeAnnouncement').onclick = () => {
+                announcementBox.style.display = 'none';
+                localStorage.setItem('lastSeenAnnouncementId', latest.id.toString());
+              };
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading announcements:', error);
+      }
+    }
+
+    // Logout button: redirect to login page
+    document.getElementById('logoutBtn').onclick = function() {
+      // Optionally clear session/localStorage here
+      location.href = 'login.html';
+    };
+
+    // Load announcements on page load
+    loadAnnouncements();
+  </script>
+</body>
+</html>
